@@ -11,6 +11,8 @@ I joined a college football pool this year with a few friends. I thought it woul
 3. Explore the data and create features
 4. Build a model to predict the outcome of each game
 ...
+-   Review against betting lines
+-   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Action Items
 
