@@ -10,6 +10,10 @@ I joined a college football pool this year with a few friends. I thought it woul
 2. Clean and process the data
 3. Explore the data and create features
 4. Build a model to predict the outcome of each game
-5. Use the model to make picks for the season
-6. Evaluate the picks
-7. Make picks for the rest of the season
+...
+
+## Action Items
+
+- [ ] Review what we have with game data
+- [ ] Get game data for many seasons, at least 10 years
+- [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
