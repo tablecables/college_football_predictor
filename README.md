@@ -17,5 +17,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 ## Action Items
 
 - [ ] Review what we have with game data
+- [ ] Add in post-season data
+    - [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
 - [ ] Get game data for many seasons, at least 10 years
 - [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
