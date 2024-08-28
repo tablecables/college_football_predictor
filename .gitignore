@@ -5,3 +5,6 @@
 # Virtual environment
 venv/
 .venv/
+
+# Data
+data/
