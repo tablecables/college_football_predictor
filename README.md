@@ -16,8 +16,19 @@ I joined a college football pool this year with a few friends. I thought it woul
 
 ## Action Items
 
+**Data Collection**
+-   [x] Get game data
+-   [x] Tons of data so limit to power five conferences for now: SEC, Big Ten, ACC, Big 12, Pac-12
+    -   This reduces the number of games from 7k to 1k, much more manageable and probably more applicable
+-   [ ] Add in post-season data
+-   [ ] Add in player level data
+    -   [ ] *Fix fetch player data function*
+    -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
+-   [ ] Get current season data, at least schedule and starting rosters
+-   [ ] Decide how late we'll grab data from (20yrs?)
+-   [ ] Scope of additional data?
+
+**Data Cleaning**
+
 - [ ] Review what we have with game data
-- [ ] Add in post-season data
-    - [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
-- [ ] Get game data for many seasons, at least 10 years
 - [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
