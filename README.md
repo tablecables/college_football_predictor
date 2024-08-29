@@ -2,7 +2,10 @@
 
 ## Overview
 
-I joined a college football pool this year with a few friends. I thought it would be fun to try and use machine learning to make picks that win more than 50% of the time.
+I joined a college football pool this year with a few friends. I thought it would be fun to try and use machine learning to make picks. Goal is to make two models:
+
+1.  win_probability_model: to predict the probability of each team winning a specific matchup
+2.  score_prediction_model: to predict the final score for both teams in a specific game
 
 ## Outline
 
@@ -32,3 +35,5 @@ I joined a college football pool this year with a few friends. I thought it woul
 
 - [ ] Review what we have with game data
 - [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
+
+**Model Selection**
