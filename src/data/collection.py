@@ -149,3 +149,19 @@ def fetch_advanced_team_game_stats(start_year, end_year, df, max_teams=None):
     df_stats = convert_to_dataframe(all_stats)
     
     return df_stats, execution_time
+
+def fetch_team_talent(start_year, end_year):
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    api_instance = cfbd.TeamsApi(cfbd.ApiClient(configuration))
+    
+    all_talent = []
+    for year in range(start_year, end_year + 1):
+        try:
+            talent = api_instance.get_talent(year=year)
+            all_talent.extend(talent)
+            print(f"Successfully fetched team talent data for {year}")
+        except ApiException as e:
+            print(f"Exception when calling TeamsApi->get_talent for year {year}: {e}\n")
+    
+    return convert_to_dataframe(all_talent) if all_talent else None

@@ -18,9 +18,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
--   [ ] First attempt at joining dataframes in data_cleaning
-    -   Join logic is a bit weird, need to think about it a bit more
-    -   There are duplicates, random nulls, etc.
+-   [ ] New API pull with 2021-23
 
 
 ## Action Items
@@ -31,6 +29,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [x] Get advanced team data
 -   [x] Tons of data so limit to power five conferences for now: SEC, Big Ten, ACC, Big 12, Pac-12
     -   This reduces the number of games from 7k to 1k, much more manageable and probably more applicable
+-   [x] Team talent composite
 -   [ ] Add in post-season data
     -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
 -   [ ] Get current season data, at least schedule and starting rosters
@@ -39,14 +38,14 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [ ] Other Data to Consider
     -   [ ] Coach Information
     -   [ ] Betting Lines
-    -   [ ] Team Talent Composite
     -   [ ] Player level data
 
 
 **Data Cleaning**
 
 -   [x] Join game data to team game data
--   [ ] Join advanced team data
+-   [x] Join advanced team data
+-   [x] Join team talent composite
 - [ ] Review what we have with game data
 - [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
 

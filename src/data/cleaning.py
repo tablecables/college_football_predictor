@@ -47,7 +47,7 @@ def create_team_centric_df(games_df):
     team_centric_df = pd.concat([home_df[columns_to_keep], away_df[columns_to_keep]], ignore_index=True)
     return team_centric_df
 
-def merge_and_clean_dataframes(games_df, team_stats_df, advanced_stats_df):
+def merge_and_clean_dataframes(games_df, team_stats_df, advanced_stats_df, team_talent_df):
     # Create team-centric dataframe
     team_centric_df = create_team_centric_df(games_df)
 
@@ -72,9 +72,8 @@ def merge_and_clean_dataframes(games_df, team_stats_df, advanced_stats_df):
     # Normalize advanced stats
     offense_cols = pd.json_normalize(advanced_stats_df['offense']).add_prefix('offense_')
     defense_cols = pd.json_normalize(advanced_stats_df['defense']).add_prefix('defense_')
-
     # Combine the expanded dataframe
-    advanced_stats_final = pd.concat([advanced_stats_df[['game_id', 'week', 'team', 'opponent']], 
+    advanced_stats_final = pd.concat([advanced_stats_df[['game_id', 'week', 'team']], 
                                       offense_cols, defense_cols], axis=1)
 
     # Merge with merged_df
@@ -85,5 +84,27 @@ def merge_and_clean_dataframes(games_df, team_stats_df, advanced_stats_df):
 
     # Drop the redundant game_id column
     merged_df_final = merged_df_final.drop('game_id', axis=1)
+
+    # Merge with advanced_stats_df
+    merged_df_final = merged_df.merge(advanced_stats_final, 
+                                      left_on=['id', 'week', 'team'], 
+                                      right_on=['game_id', 'week', 'team'], 
+                                      how='left')
+
+    # Drop the redundant game_id column
+    merged_df_final = merged_df_final.drop('game_id', axis=1)
+
+    # Merge team_talent_df with merged_df_final
+    merged_df_final = merged_df_final.merge(
+        team_talent_df.rename(columns={'year': 'season', 'school': 'team', 'talent': 'team_talent'}),
+        on=['season', 'team'],
+        how='left'
+    )
+
+    merged_df_final = merged_df_final.merge(
+        team_talent_df.rename(columns={'year': 'season', 'school': 'opponent', 'talent': 'opponent_talent'}),
+        on=['season', 'opponent'],
+        how='left'
+    )
 
     return merged_df_final
