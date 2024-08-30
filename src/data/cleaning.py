@@ -108,3 +108,40 @@ def merge_and_clean_dataframes(games_df, team_stats_df, advanced_stats_df, team_
     )
 
     return merged_df_final
+
+def visualize_null_values(df):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    null_columns = df.columns[df.isnull().any()].tolist()
+    null_percentages = df[null_columns].isnull().mean().sort_values(ascending=False) * 100
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 15))
+    fig.patch.set_facecolor('#f0f0f0')
+
+    sns.heatmap(df[null_columns].isnull(), cmap='YlGnBu', cbar=False, ax=ax1)
+    ax1.set_title('Distribution of Null Values', fontsize=16, fontweight='bold')
+    ax1.set_xlabel('Columns', fontsize=12)
+    ax1.set_ylabel('Rows', fontsize=12)
+    ax1.set_xticks([])
+    ax1.set_yticks([])
+
+    null_percentages.plot(kind='barh', ax=ax2)
+    ax2.set_title('Percentage of Null Values by Column', fontsize=16, fontweight='bold')
+    ax2.set_xlabel('Percentage of Null Values', fontsize=12)
+    ax2.set_ylabel('Columns', fontsize=12)
+
+    for i, v in enumerate(null_percentages):
+        ax2.text(v + 0.5, i, f'{v:.1f}%', va='center', fontsize=10)
+
+    plt.tight_layout()
+    fig.patch.set_edgecolor('black')
+    fig.patch.set_linewidth(2)
+
+    plt.show()
+
+    print("Columns with null values:")
+    for col in null_columns:
+        null_count = df[col].isnull().sum()
+        null_percentage = (null_count / len(df)) * 100
+        print(f"{col}: {null_count} null values ({null_percentage:.2f}%)")
