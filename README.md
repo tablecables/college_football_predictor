@@ -45,6 +45,8 @@ I joined a college football pool this year with a few friends. I thought it woul
 
 **Data Cleaning**
 
+-   [x] Join game data to team game data
+-   [ ] Join advanced team data
 - [ ] Review what we have with game data
 - [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
 
