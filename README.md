@@ -21,6 +21,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [ ] First attempt at joining dataframes in data_cleaning
     -   Join logic is a bit weird, need to think about it a bit more
     -   There are duplicates, random nulls, etc.
+-   [ ] Change the names of data folders so that data .py are not excluded
 
 
 ## Action Items
