@@ -17,6 +17,12 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Review against betting lines
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
+## Current Action
+-   [ ] Trying two different methods in collection.py and 01_data_collection. Fix and find out what is faster per game
+    1. Use team_stats_df to set our gameId and team name filter before making the API call
+    2. Make a big API call, then just pick the games we care about afterwards
+
+
 ## Action Items
 
 **Data Collection**
