@@ -8,3 +8,6 @@ venv/
 
 # Data
 data/
+
+# Python cache files
+__pycache__/

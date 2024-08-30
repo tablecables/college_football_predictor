@@ -18,15 +18,17 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
--   [ ] Trying two different methods in collection.py and 01_data_collection. Fix and find out what is faster per game
-    1. Use team_stats_df to set our gameId and team name filter before making the API call
-    2. Make a big API call, then just pick the games we care about afterwards
+-   [ ] First attempt at joining dataframes in data_cleaning
+    -   Join logic is a bit weird, need to think about it a bit more
+    -   There are duplicates, random nulls, etc.
 
 
 ## Action Items
 
 **Data Collection**
 -   [x] Get game data
+-   [x] Get team data
+-   [x] Get advanced team data
 -   [x] Tons of data so limit to power five conferences for now: SEC, Big Ten, ACC, Big 12, Pac-12
     -   This reduces the number of games from 7k to 1k, much more manageable and probably more applicable
 -   [ ] Add in post-season data
