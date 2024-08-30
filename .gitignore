@@ -6,8 +6,11 @@
 venv/
 .venv/
 
-# Data
-data/
+# Ignore the root data folder
+/data/
+
+# But don't ignore the src/data folder
+!/src/data/
 
 # Python cache files
 __pycache__/
