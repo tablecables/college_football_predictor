@@ -19,8 +19,6 @@ I joined a college football pool this year with a few friends. I thought it woul
 
 ## Current Action
 -   [x] New API pull with 2021-23
--   [ ] Investigating null values, currently the 2.4% null advanced stats. I think some are teams outside the Power 5
-    -   [ ] Check if all games are exclusive of those with no nulls
 
 
 ## Action Items
@@ -49,7 +47,20 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [x] Join game data to team game data
 -   [x] Join advanced team data
 -   [x] Join team talent composite
+-   [x] Investigating null values, currently the 2.4% null advanced stats. I think some are teams outside the Power 5
+    -   [x] Check if all games are exclusive of those with no nulls
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
--   [ ] Review what we have with game data
+-   [ ] Convert data types: start_date, line_scores
+-   [ ] Handle Outliers
+-   [ ] Derived features: point difference, win column (1, 0), time-based features from start_date
+-   [ ] Review and Validate
+
+**Feature Engineering**
 
 **Model Selection**
+
+**Model Training**
+
+**Model Evaluation**
+
+**Predictions**
