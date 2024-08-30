@@ -32,6 +32,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [x] Tons of data so limit to power five conferences for now: SEC, Big Ten, ACC, Big 12, Pac-12
     -   This reduces the number of games from 7k to 1k, much more manageable and probably more applicable
 -   [x] Team talent composite
+-   [ ] Pull 2024 data, did Pac-12 dissappear??
 -   [ ] Add in post-season data
     -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
 -   [ ] Get current season data, at least schedule and starting rosters
@@ -48,7 +49,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [x] Join game data to team game data
 -   [x] Join advanced team data
 -   [x] Join team talent composite
-- [ ] Review what we have with game data
-- [ ] Scope other data that we'll use like Player Data, Coach Data, etc.
+-   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
+-   [ ] Review what we have with game data
 
 **Model Selection**

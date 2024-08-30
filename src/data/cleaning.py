@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
 
 def create_team_centric_df(games_df):
     # Filter for completed games
@@ -145,3 +148,90 @@ def visualize_null_values(df):
         null_count = df[col].isnull().sum()
         null_percentage = (null_count / len(df)) * 100
         print(f"{col}: {null_count} null values ({null_percentage:.2f}%)")
+
+def clean_dataframe(df):
+    # Columns to drop
+    columns_to_drop = ['highlights', 'notes']
+    df = df.drop(columns=columns_to_drop)
+    
+    # Columns to fill with 0
+    columns_to_fill_zero = [
+        'puntReturnYards', 'puntReturnTDs', 'puntReturns',
+        'kickReturnYards', 'kickReturnTDs', 'kickReturns',
+        'kickingPoints', 'totalFumbles', 'tacklesForLoss',
+        'defensiveTDs', 'tackles', 'sacks', 'qbHurries',
+        'passesDeflected', 'interceptionYards', 'interceptionTDs',
+        'passesIntercepted'
+    ]
+    df[columns_to_fill_zero] = df[columns_to_fill_zero].fillna(0)
+    
+    # Handle attendance
+    if 'venue_id' in df.columns:
+        df['attendance'] = df.groupby('venue_id')['attendance'].transform(lambda x: x.fillna(x.median()))
+    
+    # If there are still null values in attendance, fill with overall median
+    df['attendance'] = df['attendance'].fillna(df['attendance'].median())
+    
+    # Handle other columns
+    for col in ['excitement_index', 'team_talent', 'opponent_talent']:
+        df[col] = df[col].fillna(df[col].median())
+    
+    # Handle advanced stats columns
+    advanced_stats_columns = [col for col in df.columns if col.startswith(('offense_', 'defense_'))]
+    
+    # Drop rows where all advanced stats columns are null
+    df = df.dropna(subset=advanced_stats_columns, how='all')
+    
+    # Handle open_field_yards and open_field_yards_total
+    open_field_cols = ['offense_open_field_yards', 'offense_open_field_yards_total',
+                       'defense_open_field_yards', 'defense_open_field_yards_total']
+    df[open_field_cols] = df[open_field_cols].fillna(0)
+    
+    # Handle columns with very few null values
+    few_nulls_cols = ['offense_second_level_yards', 'offense_second_level_yards_total',
+                      'defense_second_level_yards', 'defense_second_level_yards_total',
+                      'offense_rushing_plays.explosiveness', 'offense_standard_downs.explosiveness',
+                      'defense_rushing_plays.explosiveness', 'defense_standard_downs.explosiveness']
+    df[few_nulls_cols] = df[few_nulls_cols].fillna(df[few_nulls_cols].median())
+    
+    # Handle explosiveness columns with more null values
+    explosiveness_cols = ['offense_passing_downs.explosiveness', 'offense_passing_plays.explosiveness',
+                          'defense_passing_downs.explosiveness', 'defense_passing_plays.explosiveness']
+    
+    for col in explosiveness_cols:
+        # Forward fill
+        df[col] = df.groupby('team')[col].transform(lambda x: x.ffill())
+        # Backward fill
+        df[col] = df.groupby('team')[col].transform(lambda x: x.bfill())
+    
+    # If there are still any NaN values, fill with the overall median of the column
+    df[explosiveness_cols] = df[explosiveness_cols].fillna(df[explosiveness_cols].median())
+         
+    return df
+
+def analyze_distribution(df, column_name):
+
+    # Create a histogram with a density plot
+    plt.figure(figsize=(12, 6))
+    sns.histplot(df[column_name].dropna(), kde=True)
+    plt.title(f'Distribution of {column_name}')
+    plt.xlabel(column_name)
+    plt.ylabel('Frequency')
+
+    # Add a normal distribution line for comparison
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, 100)
+    p = stats.norm.pdf(x, df[column_name].mean(), df[column_name].std())
+    plt.plot(x, p * df[column_name].dropna().shape[0] * (xmax - xmin) / 100, 'k', linewidth=2)
+
+    plt.show()
+
+    # Perform Shapiro-Wilk test for normality
+    statistic, p_value = stats.shapiro(df[column_name].dropna())
+    print(f"Shapiro-Wilk test - statistic: {statistic:.4f}, p-value: {p_value:.4f}")
+
+    # Calculate skewness and kurtosis
+    skewness = df[column_name].skew()
+    kurtosis = df[column_name].kurtosis()
+    print(f"Skewness: {skewness:.4f}")
+    print(f"Kurtosis: {kurtosis:.4f}")
