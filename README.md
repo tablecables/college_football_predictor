@@ -18,7 +18,9 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
--   [ ] New API pull with 2021-23
+-   [x] New API pull with 2021-23
+-   [ ] Investigating null values, currently the 2.4% null advanced stats. I think some are teams outside the Power 5
+    -   [ ] Check if all games are exclusive of those with no nulls
 
 
 ## Action Items
