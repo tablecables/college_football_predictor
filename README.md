@@ -18,7 +18,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
--   [x] New API pull with 2021-23
+
 
 
 ## Action Items
@@ -29,14 +29,17 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [x] Get advanced team data
 -   [x] Tons of data so limit to power five conferences for now: SEC, Big Ten, ACC, Big 12, Pac-12
     -   This reduces the number of games from 7k to 1k, much more manageable and probably more applicable
+-   [x] New API pull with 2021-23
 -   [x] Team talent composite
 -   [ ] Pull 2024 data, did Pac-12 dissappear??
+-   [ ] Pull extended game history for win rate later
 -   [ ] Add in post-season data
     -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
 -   [ ] Get current season data, at least schedule and starting rosters
 -   [ ] Decide how late we'll grab data from (20yrs?)
 
 -   [ ] Other Data to Consider
+    -   [ ] Longer history of games for win rate data
     -   [ ] Coach Information
     -   [ ] Betting Lines
     -   [ ] Player level data
@@ -56,6 +59,8 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [ ] Review and Validate
 
 **Feature Engineering**
+-   [x] Fix the team v team win rate function
+-   [ ] MVP list of features
 
 **Model Selection**
 
