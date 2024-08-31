@@ -18,7 +18,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
-
+-   [ ] MVP model for score predict... needs points in the features
 
 
 ## Action Items
