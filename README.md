@@ -18,7 +18,11 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
--   [ ] MVP model for score predict... needs points in the features
+-   [ ] Monitor 2001-2024 API pull
+-   [ ] Start EDA
+-   [ ] Feature engineering some time based values
+-   [ ] Structure model selection to a few key model sections
+-   [x] Clean up (multiple data folders, maybe model folder)
 
 
 ## Action Items
@@ -31,12 +35,12 @@ I joined a college football pool this year with a few friends. I thought it woul
     -   This reduces the number of games from 7k to 1k, much more manageable and probably more applicable
 -   [x] New API pull with 2021-23
 -   [x] Team talent composite
+-   [ ] Pull 2001-2024 data
 -   [ ] Pull 2024 data, did Pac-12 dissappear??
--   [ ] Pull extended game history for win rate later
+-   [ ] Get coaches
+-   [ ] Pull teams/matchup to replace history?
 -   [ ] Add in post-season data
     -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
--   [ ] Get current season data, at least schedule and starting rosters
--   [ ] Decide how late we'll grab data from (20yrs?)
 
 -   [ ] Other Data to Consider
     -   [ ] Longer history of games for win rate data
@@ -52,19 +56,48 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   [x] Join team talent composite
 -   [x] Investigating null values, currently the 2.4% null advanced stats. I think some are teams outside the Power 5
     -   [x] Check if all games are exclusive of those with no nulls
+-   [x] Create a team_id, team_name legend in utils
+-   [x] Put a team and team_id dictionary in utils
+-   [ ] Check what is in 2024 data
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
 -   [ ] Convert data types: start_date, line_scores
 -   [ ] Handle Outliers
 -   [ ] Derived features: point difference, win column (1, 0), time-based features from start_date
 -   [ ] Review and Validate
 
+**Exploratory Data Analysis**
+
+1. Data Distribution
+-   [ ] Basic statistical summary
+-   [ ] Histograms for numerical variables
+-   [ ] Box plots to identify outliers
+-   [ ] Q-Q plots for normality
+2. Categorical
+-   [ ] Unique values in categorical columns
+-   [ ] Bar plots for categorical variables
+3. Correlation Analysis
+-   [ ] Correlation matrix
+-   [ ] Visualize correlations with a heatmap
+4. Time-based Analysis
+-   [ ] Analyze trends over seasons
+-   [ ] Performance by week within seasons
+5. Team Performance Analysis
+-   [ ] Home vs away performance
+-   [ ] Win rates for teams
+6. Advanced Stats
+-   [ ] Explore impact of advanced stats on game outcomes
+7. Feature Insights
+-   [ ] Review key feature/target relationships
+-   [ ] List potential features for modeling
+
 **Feature Engineering**
 -   [x] Fix the team v team win rate function
 -   [x] MVP list of features
 
-**Model Selection**
+**Model Selection & Training**
 
-**Model Training**
+
+
 
 **Model Evaluation**
 

@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+import os
 
 def create_team_centric_df(games_df):
     # Filter for completed games
@@ -209,29 +210,40 @@ def clean_dataframe(df):
          
     return df
 
-def analyze_distribution(df, column_name):
+def generate_and_save_team_pairs(cleaned_df, project_root):
+    # Create a DataFrame showing individual team_id team pairs
+    team_pairs_df = cleaned_df[['team_id', 'team']].drop_duplicates().reset_index(drop=True)
 
-    # Create a histogram with a density plot
-    plt.figure(figsize=(12, 6))
-    sns.histplot(df[column_name].dropna(), kde=True)
-    plt.title(f'Distribution of {column_name}')
-    plt.xlabel(column_name)
-    plt.ylabel('Frequency')
+    # Convert the DataFrame to a list of tuples
+    team_pairs_list = list(team_pairs_df.itertuples(index=False, name=None))
 
-    # Add a normal distribution line for comparison
-    xmin, xmax = plt.xlim()
-    x = np.linspace(xmin, xmax, 100)
-    p = stats.norm.pdf(x, df[column_name].mean(), df[column_name].std())
-    plt.plot(x, p * df[column_name].dropna().shape[0] * (xmax - xmin) / 100, 'k', linewidth=2)
+    # Format the team pairs list with line breaks
+    formatted_pairs = ',\n    '.join(repr(pair) for pair in team_pairs_list)
 
-    plt.show()
+    # Generate the Python code as a string
+    python_code = f"""
+# This file is auto-generated. Do not edit manually.
 
-    # Perform Shapiro-Wilk test for normality
-    statistic, p_value = stats.shapiro(df[column_name].dropna())
-    print(f"Shapiro-Wilk test - statistic: {statistic:.4f}, p-value: {p_value:.4f}")
+TEAM_PAIRS = [
+    {formatted_pairs}
+]
 
-    # Calculate skewness and kurtosis
-    skewness = df[column_name].skew()
-    kurtosis = df[column_name].kurtosis()
-    print(f"Skewness: {skewness:.4f}")
-    print(f"Kurtosis: {kurtosis:.4f}")
+def get_team_pairs():
+    return TEAM_PAIRS
+
+def is_valid_pair(team1, team2):
+    return (team1, team2) in TEAM_PAIRS or (team2, team1) in TEAM_PAIRS
+"""
+
+    # Define the path for the utils directory and the team_pairs.py file
+    utils_dir = os.path.join(project_root, 'src', 'utils')
+    team_pairs_path = os.path.join(utils_dir, 'team_pairs.py')
+
+    # Create the utils directory if it doesn't exist
+    os.makedirs(utils_dir, exist_ok=True)
+
+    # Write the Python code to the file
+    with open(team_pairs_path, 'w') as f:
+        f.write(python_code)
+
+    return team_pairs_path
