@@ -2,30 +2,53 @@ import pandas as pd
 import numpy as np
 
 def calculate_team_vs_team_win_rate(df):
-    df = df.sort_values('start_date')
-    
     # Create a new DataFrame 'check' from 'df'
-    check = df[['matchup', 'team_id', 'win', 'start_date']].copy()
+    check = df[['matchup', 'team_id', 'opponent_id', 'win']].copy()
     
-    # Create a unique identifier for each matchup
-    check['matchup_id'] = check['matchup'].apply(lambda x: tuple(sorted(x)))
+    # Convert matchup from numpy array to tuple
+    check['matchup'] = check['matchup'].apply(tuple)
     
-    # Calculate cumulative wins for each matchup
-    check['cumulative_wins'] = check.groupby('matchup_id').cumcount()
-    check.loc[check['win'] == 1, 'cumulative_wins'] += 1
+    # Extract team IDs from the matchup tuple
+    check['a'] = check['matchup'].apply(lambda x: x[0])
+    check['b'] = check['matchup'].apply(lambda x: x[1])
     
-    # Calculate total games played for each matchup
-    check['total_games'] = check.groupby('matchup_id').cumcount() + 1
+    # Initialize columns for wins
+    check['a_wins'] = 0
+    check['b_wins'] = 0
     
-    # Calculate win rate
-    check['win_rate'] = (check['cumulative_wins'] - check['win']) / (check['total_games'] - 1)
-    check.loc[check['total_games'] == 1, 'win_rate'] = 0.5  # Default to 50% for first game
+    # Update 'a_wins' and 'b_wins'
+    check.loc[((check['team_id'] == check['a']) & (check['win'] == 1)) | 
+              ((check['opponent_id'] == check['a']) & (check['win'] == 0)), 'a_wins'] = 1
+    check.loc[((check['team_id'] == check['b']) & (check['win'] == 1)) | 
+              ((check['opponent_id'] == check['b']) & (check['win'] == 0)), 'b_wins'] = 1
     
-    # Ensure team_id matches the first team in the matchup
-    check['is_team_a'] = check['team_id'] == check['matchup'].apply(lambda x: x[0])
-    check.loc[~check['is_team_a'], 'win_rate'] = 1 - check.loc[~check['is_team_a'], 'win_rate']
+    # Group by matchup and sum the wins for each team
+    grouped = check.groupby('matchup').agg({'a_wins': 'sum', 'b_wins': 'sum'}).reset_index()
     
-    return check['win_rate']
+    # Calculate win_rate
+    grouped['win_rate'] = grouped['a_wins'] / (grouped['a_wins'] + grouped['b_wins'])
+    
+    # Merge the win_rate back to the original dataframe
+    result = pd.merge(check, grouped[['matchup', 'win_rate']], on='matchup', how='left')
+    
+    # Adjust win_rate for team_b
+    result.loc[result['team_id'] == result['b'], 'win_rate'] = 1 - result['win_rate']
+    
+    return result['win_rate']
+
+def calculate_all_time_win_rate(df):
+    df = df.sort_values('start_date')
+    df['cumulative_wins'] = df.groupby('team_id')['win'].cumsum()
+    df['games_played'] = df.groupby('team_id').cumcount() + 1
+    df['all_time_win_rate'] = df['cumulative_wins'] / df['games_played']
+    return df['all_time_win_rate'].shift(1).fillna(0.5)
+
+def calculate_season_win_rate(df):
+    df = df.sort_values(['season', 'start_date'])
+    df['cumulative_season_wins'] = df.groupby(['season', 'team_id'])['win'].cumsum()
+    df['season_games_played'] = df.groupby(['season', 'team_id']).cumcount() + 1
+    df['season_win_rate'] = df['cumulative_season_wins'] / df['season_games_played']
+    return df['season_win_rate'].shift(1).fillna(0.5)
 
 def select_mvp_features(df):
     mvp_features = [
@@ -50,7 +73,7 @@ def select_mvp_features(df):
     ]
     
     # Select MVP features
-    mvp_df = df[mvp_features + ['win']].copy()
+    mvp_df = df[mvp_features + ['win', 'start_date']].copy()
     
     # Handle non-numeric columns
     mvp_df['is_home'] = mvp_df['is_home'].astype(int)
@@ -62,5 +85,12 @@ def select_mvp_features(df):
     
     # Add time-based feature
     mvp_df['games_played_in_season'] = mvp_df.groupby(['season', 'team_id']).cumcount() + 1
+    
+    # Add all-time and season win rates
+    mvp_df['all_time_win_rate'] = calculate_all_time_win_rate(mvp_df)
+    mvp_df['season_win_rate'] = calculate_season_win_rate(mvp_df)
+    
+    # Drop the 'start_date' column as it was only used for calculations
+    mvp_df = mvp_df.drop('start_date', axis=1)
     
     return mvp_df

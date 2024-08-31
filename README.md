@@ -60,7 +60,7 @@ I joined a college football pool this year with a few friends. I thought it woul
 
 **Feature Engineering**
 -   [x] Fix the team v team win rate function
--   [ ] MVP list of features
+-   [x] MVP list of features
 
 **Model Selection**
 
