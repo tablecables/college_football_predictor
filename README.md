@@ -18,7 +18,9 @@ I joined a college football pool this year with a few friends. I thought it woul
 -   Create a dashboard of some sort, maybe using Replit/Streamlit
 
 ## Current Action
--   [ ] Monitor 2001-2024 API pull
+-   [x] Monitor 2001-2024 API pull
+-   [ ] Need to pull 2024 schedule separately, only pulls complete games
+-   [ ] Figure out duplicate rows in data_cleaning (12.8%)
 -   [ ] Start EDA
 -   [ ] Feature engineering some time based values
 -   [ ] Structure model selection to a few key model sections
