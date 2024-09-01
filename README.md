@@ -19,3 +19,17 @@ This project aims to predict outcomes of college football games using machine le
 - Machine learning model development
 - Model evaluation and comparison with betting lines
 - (Planned) Interactive dashboard for predictions
+
+## Documentation
+
+Detailed documentation of our data processing and model development can be found in the following files:
+
+- [Data Cleaning Decisions](docs/data_cleaning_decisions.md)
+- [Exploratory Analysis Insights](docs/exploratory_analysis_insights.md)
+- [Feature Engineering Process](docs/feature_engineering_process.md)
+
+For a list of planned tasks and improvements, see our [TODO](docs/TODO.md) file.
+
+## Changelog
+
+For a detailed history of changes and updates to this project, please refer to our [CHANGELOG](CHANGELOG.md).
