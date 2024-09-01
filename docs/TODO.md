@@ -1,6 +1,7 @@
 # TODO
 
 ## Current Action(s)
+-   [ ] Two dataset output
 -   [ ] Need to pull 2024 schedule separately, only pulls complete games
 -   [x] Figure out duplicate rows in data_cleaning (12.8%)
 -   [ ] Start EDA
@@ -20,16 +21,14 @@
 -   [x] New API pull with 2021-24
 -   [x] Team talent composite
 -   [x] Pull 2001-2024 data
+-   [ ] 2024 schedule for prediction (check pac-12)
 -   [ ] Figure out where the duplicates are coming from, currently fixed in cleaning
--   [ ] Pull 2024 data, did Pac-12 dissappear??
 -   [ ] Get coaches
 -   [ ] Pull teams/matchup to replace history?
 -   [ ] Add in post-season data
     -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
 
 -   [ ] Other Data to Consider
-    -   [ ] Longer history of games for win rate data
-    -   [ ] Coach Information
     -   [ ] Betting Lines
     -   [ ] Player level data
 
@@ -43,12 +42,9 @@
     -   [x] Check if all games are exclusive of those with no nulls
 -   [x] Create a team_id, team_name legend in utils
 -   [x] Put a team and team_id dictionary in utils
--   [ ] Check what is in 2024 data
+-   [ ] Convert any data types?
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
--   [ ] Convert data types: start_date, line_scores
--   [ ] Handle Outliers
--   [ ] Derived features: point difference, win column (1, 0), time-based features from start_date
--   [ ] Review and Validate
+-   [ ] Handle Outliers?
 
 **Exploratory Data Analysis**
 

@@ -273,3 +273,47 @@ def is_valid_pair(team1, team2):
         f.write(python_code)
 
     return team_pairs_path
+
+def deduplicate_dataframes(*dataframes, df_names=None):
+    """
+    Deduplicate multiple dataframes efficiently, excluding advanced_stats_df.
+    
+    Args:
+    *dataframes: Variable number of pandas DataFrames
+    df_names: List of names for the dataframes (optional)
+    
+    Returns:
+    list: List of deduplicated DataFrames
+    int: Total number of rows dropped across all dataframes
+    """
+    if df_names is None:
+        df_names = [f"DataFrame_{i}" for i in range(len(dataframes))]
+    
+    total_rows_dropped = 0
+    deduplicated_dfs = []
+
+    for df, name in zip(dataframes, df_names):
+        if name == "advanced_stats_df":
+            print(f"Skipping deduplication for {name}")
+            deduplicated_dfs.append(df)
+            continue
+
+        initial_rows = len(df)
+        
+        # Convert problematic columns to strings
+        for col in df.select_dtypes(include=[object]).columns:
+            if df[col].dtype == object:
+                df[col] = df[col].astype(str)
+        
+        # Drop duplicates
+        df = df.drop_duplicates()
+        
+        rows_dropped = initial_rows - len(df)
+        total_rows_dropped += rows_dropped
+        
+        print(f"{name}: Dropped {rows_dropped} duplicate rows")
+        deduplicated_dfs.append(df)
+    
+    print(f"\nTotal duplicate rows dropped across all dataframes: {total_rows_dropped}")
+    
+    return deduplicated_dfs, total_rows_dropped
