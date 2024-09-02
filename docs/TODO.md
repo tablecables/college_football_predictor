@@ -1,13 +1,10 @@
 # TODO
 
 ## Current Action(s)
--   [ ] Two dataset output
 -   [ ] Need to pull 2024 schedule separately, only pulls complete games
--   [x] Figure out duplicate rows in data_cleaning (12.8%)
 -   [ ] Start EDA
 -   [ ] Feature engineering some time based values
 -   [ ] Structure model selection to a few key model sections
--   [x] Clean up (multiple data folders, maybe model folder)
 
 
 ## Action Items
@@ -42,23 +39,34 @@
     -   [x] Check if all games are exclusive of those with no nulls
 -   [x] Create a team_id, team_name legend in utils
 -   [x] Put a team and team_id dictionary in utils
+-   [x] Two dataset output
+-   [x] Figure out duplicate rows in data_cleaning (12.8%)
+-   [ ] duplicates to remove: team and team_name
 -   [ ] Convert any data types?
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
 -   [ ] Handle Outliers?
 
 **Exploratory Data Analysis**
 
+-   [ ] Finish checking out potential features
+-   [x] Load logo images for charts
+-   [ ] Think of questions to ask now that we have the dataset ready
+-   [ ] which teams specialize in which situations
+
 1. Data Distribution
--   [ ] Basic statistical summary
+-   [x] Basic statistical summary
 -   [ ] Histograms for numerical variables
+    -   total_ppa mean per season
+    -   point_difference
+    -   talent
 -   [ ] Box plots to identify outliers
 -   [ ] Q-Q plots for normality
 2. Categorical
 -   [ ] Unique values in categorical columns
 -   [ ] Bar plots for categorical variables
 3. Correlation Analysis
--   [ ] Correlation matrix
--   [ ] Visualize correlations with a heatmap
+-   [x] Correlation matrix
+-   [x] Visualize correlations with a heatmap
 4. Time-based Analysis
 -   [ ] Analyze trends over seasons
 -   [ ] Performance by week within seasons
