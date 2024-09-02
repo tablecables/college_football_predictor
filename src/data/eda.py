@@ -142,4 +142,62 @@ def correlation_analysis(df, target_col, top_n=15):
     plt.tight_layout()
     plt.show()
     
-    return subset_corr
+    return corr_matrix
+
+def plot_team_performance(df_2016_plus):
+    # Calculate mean offense_ppa and defense_ppa for each team
+    team_stats = df_2016_plus.groupby('team_id').agg({
+        'offense_ppa': 'mean',
+        'defense_ppa': 'mean',
+        'team_name': 'first',
+        'win': 'sum'  # Sum of wins for each team
+    }).reset_index()
+
+    # Sort teams by total wins and get top 10
+    top_10_teams = team_stats.nlargest(10, 'win')['team_id'].tolist()
+
+    # Sort teams by offense_ppa and defense_ppa and get bottom 5 offense and top 5 defense
+    bottom_5_offense = team_stats.nsmallest(5, 'offense_ppa')['team_id'].tolist()
+    top_5_defense = team_stats.nlargest(5, 'defense_ppa')['team_id'].tolist()  # Larger defense_ppa is worse
+
+    # Combine all teams to label
+    teams_to_label = list(set(top_10_teams + bottom_5_offense + top_5_defense))
+
+    # Function to load team logos
+    def get_logo(team_id):
+        logo_path = f'../src/data/utils/logos/{team_id}.png'
+        if os.path.exists(logo_path):
+            return plt.imread(logo_path)
+        return None
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Plot each team
+    for _, team in team_stats.iterrows():
+        logo = get_logo(team['team_id'])
+        if logo is not None:
+            imagebox = OffsetImage(logo, zoom=0.1)  # Adjust zoom as needed
+            ab = AnnotationBbox(imagebox, (team['offense_ppa'], team['defense_ppa']),
+                                frameon=False, pad=0)
+            ax.add_artist(ab)
+        else:
+            ax.scatter(team['offense_ppa'], team['defense_ppa'], s=50)
+        
+        # Label selected teams
+        if team['team_id'] in teams_to_label:
+            ax.annotate(team['team_name'], (team['offense_ppa'], team['defense_ppa']), 
+                        xytext=(5, 5), textcoords='offset points', fontsize=8)
+
+    # Set labels and title
+    ax.set_xlabel('Offense PPA')
+    ax.set_ylabel('Defense PPA')
+    ax.set_title('Team Performance: Offense vs Defense PPA\n(Top 10 by Wins, Bottom 5 Offense and Top 5 Defense by PPA Labeled)')
+
+    # Show the outside box
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+
+    # Adjust layout and display
+    plt.tight_layout()
+    plt.show()
