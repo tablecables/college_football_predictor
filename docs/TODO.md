@@ -2,9 +2,10 @@
 
 ## Current Action(s)
 -   [ ] Need to pull 2024 schedule separately, only pulls complete games
--   [ ] Start EDA
+-   [ ] Clean up duplicates (team_name, team_points_stats) and bool to binary (is_home, neutral_site, conference_game)
+
 -   [ ] Feature engineering some time based values
--   [ ] Structure model selection to a few key model sections
+-   [ ] implement in preprocessing.py
 
 
 ## Action Items
@@ -82,6 +83,11 @@
 **Feature Engineering**
 -   [x] Fix the team v team win rate function
 -   [x] MVP list of features
+-   [ ] Build out feature list and functions
+-   [ ] Implement with preprocessing.py and notebook
+    -   [ ] add in encoding of categorical variables
+-   [ ] Normalize some features (like team_conference)
+-   [ ] Feature selection
 
 **Model Selection & Training**
 
