@@ -2,10 +2,10 @@
 
 ## Current Action(s)
 -   [ ] Need to pull 2024 schedule separately, only pulls complete games
--   [ ] Clean up duplicates (team_name, team_points_stats) and bool to binary (is_home, neutral_site, conference_game)
-
--   [ ] Feature engineering some time based values
--   [ ] implement in preprocessing.py
+-   [ ] Feature selection
+    -   [ ] cleanup cateogircal and initial nans
+    -   [ ] outlier and normalize
+    -   [ ] matchup feature
 
 
 ## Action Items
@@ -42,9 +42,9 @@
 -   [x] Put a team and team_id dictionary in utils
 -   [x] Two dataset output
 -   [x] Figure out duplicate rows in data_cleaning (12.8%)
--   [ ] duplicates to remove: team and team_name
--   [ ] Update boolean values
--   [ ] convert possessionTime to numeric
+-   [x] duplicates to remove: team and team_name
+-   [x] Update boolean values
+-   [x] convert possessionTime to numeric
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
 -   [ ] Handle Outliers?
 
@@ -84,11 +84,11 @@
 **Feature Engineering**
 -   [x] Fix the team v team win rate function
 -   [x] MVP list of features
--   [ ] Build out feature list and functions
-    -   [ ] Add in additional stats
--   [ ] Implement with preprocessing.py and notebook
-    -   [ ] add in encoding of categorical variables
-    -   [ ] Decide how to deal with initial NaN values at start of dataset
+-   [x] Build out feature list and functions
+    -   [x] Add in additional stats
+-   [x] Implement with preprocessing.py and notebook
+-   [ ] add in encoding of categorical variables
+-   [ ] Decide how to deal with initial NaN values at start of dataset
 -   [ ] Normalize some features (like team_conference)
 -   [ ] Feature selection
 
