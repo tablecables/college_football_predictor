@@ -43,7 +43,8 @@
 -   [x] Two dataset output
 -   [x] Figure out duplicate rows in data_cleaning (12.8%)
 -   [ ] duplicates to remove: team and team_name
--   [ ] Convert any data types?
+-   [ ] Update boolean values
+-   [ ] convert possessionTime to numeric
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
 -   [ ] Handle Outliers?
 
@@ -84,8 +85,10 @@
 -   [x] Fix the team v team win rate function
 -   [x] MVP list of features
 -   [ ] Build out feature list and functions
+    -   [ ] Add in additional stats
 -   [ ] Implement with preprocessing.py and notebook
     -   [ ] add in encoding of categorical variables
+    -   [ ] Decide how to deal with initial NaN values at start of dataset
 -   [ ] Normalize some features (like team_conference)
 -   [ ] Feature selection
 

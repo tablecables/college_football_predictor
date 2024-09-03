@@ -1,78 +1,85 @@
 # feature engineering
 
+import pandas as pd
+import numpy as np
+
 POST_GAME_STATS = [
     # Basic Stats
     {
-        "name": "total_yards",
+        "name": "totalYards",
         "description": "Total yards gained by the team"
     },
     {
-        "name": "first_downs",
+        "name": "firstDowns",
         "description": "Number of first downs achieved"
     },
     {
-        "name": "possession_time",
+        "name": "possessionTime",
         "description": "Time of possession in seconds"
     },
     {
-        "name": "third_down_efficiency",
+        "name": "thirdDownPct",
         "description": "Percentage of successful third down conversions"
     },
     {
-        "name": "fourth_down_efficiency",
+        "name": "fourthDownPct",
         "description": "Percentage of successful fourth down conversions"
     },
     {
-        "name": "passing_touchdowns",
+        "name": "passingTDs",
         "description": "Number of passing touchdowns"
     },
     {
-        "name": "net_passing_yards",
+        "name": "netPassingYards",
         "description": "Net yards gained from passing"
     },
     {
-        "name": "completion_attempts",
-        "description": "Number of pass completions and attempts"
+        "name": "completionPct",
+        "description": "Number of pass completions per attempts"
     },
     {
-        "name": "yards_per_pass",
+        "name": "yardsPerPass",
         "description": "Average yards gained per pass attempt"
     },
     {
-        "name": "rushing_touchdowns",
+        "name": "rushingTDs",
         "description": "Number of rushing touchdowns"
     },
     {
-        "name": "rushing_yards",
+        "name": "rushingYards",
         "description": "Total rushing yards"
     },
     {
-        "name": "rushing_attempts",
+        "name": "rushingAttempts",
         "description": "Number of rushing attempts"
     },
     {
-        "name": "yards_per_rush_attempt",
+        "name": "yardsPerRushAttempt",
         "description": "Average yards gained per rush attempt"
     },
     {
-        "name": "punt_returns",
+        "name": "puntReturns",
         "description": "Number of punt returns"
     },
     {
-        "name": "punt_return_yards",
+        "name": "puntReturnYards",
         "description": "Total yards gained from punt returns"
     },
     {
-        "name": "punt_return_touchdowns",
+        "name": "puntReturnTDs",
         "description": "Number of touchdowns scored on punt returns"
     },
     {
-        "name": "kicking_points",
+        "name": "kickingPoints",
         "description": "Total points scored from kicking (field goals and extra points)"
     },
     {
-        "name": "total_penalties_yards",
-        "description": "Total yards penalized"
+        "name": "penalties",
+        "description": "Total number of penalties"
+    },
+    {
+        "name": "penaltyYards",
+        "description": "Total number of yards awarded to opponent from penalties"
     },
     {
         "name": "turnovers",
@@ -83,27 +90,27 @@ POST_GAME_STATS = [
         "description": "Number of interceptions thrown"
     },
     {
-        "name": "interception_yards",
+        "name": "interceptionYards",
         "description": "Yards gained from interception returns"
     },
     {
-        "name": "interception_touchdowns",
+        "name": "interceptionTDs",
         "description": "Number of touchdowns scored on interception returns"
     },
     {
-        "name": "passes_intercepted",
+        "name": "passesIntercepted",
         "description": "Number of passes intercepted by the defense"
     },
     {
-        "name": "total_fumbles",
+        "name": "totalFumbles",
         "description": "Total number of fumbles"
     },
     {
-        "name": "fumbles_lost",
+        "name": "fumblesLost",
         "description": "Number of fumbles lost to the opposing team"
     },
     {
-        "name": "fumbles_recovered",
+        "name": "fumblesRecovered",
         "description": "Number of fumbles recovered"
     },
 
@@ -333,7 +340,8 @@ ENGINEERED_FEATURES = [
         "name": "win_rate_season",
         "description": "Win rate of the team in the current season",
         "type": "engineered",
-        "function": "calculate_season_win_rate"
+        "function": "calculate_season_win_rate",
+        "params": {}
     },
     {
         "name": "points_scored_last_3",
@@ -350,13 +358,20 @@ ENGINEERED_FEATURES = [
         "params": {"stat": "opponent_points", "n": 3}
     },
     {
-        "name": "point_differential_season",
+        "name": "point_differential_season_avg",
         "description": "Average point differential for the season",
         "type": "engineered",
-        "function": "calculate_season_point_differential"
+        "function": "calculate_season_point_differential",
+        "params": {}
+    },
+    {
+        "name": "point_differential_season_cumulative",
+        "description": "Cumulative point differential for the season",
+        "type": "engineered",
+        "function": "calculate_cumulative_season_point_differential",
+        "params": {}
     }
 ]
-
 
 FEATURES = [
     # Existing features
@@ -417,42 +432,56 @@ FEATURES = [
     }
 ] + ENGINEERED_FEATURES
 
+def calculate_rolling_average(data, stat, n):
+    return data.groupby('team_id')[stat].shift().rolling(window=n, min_periods=1).mean().reset_index(level=0, drop=True)
+
+def calculate_weighted_average(data, stat):
+    def weighted_avg(x):
+        weights = np.arange(1, len(x))
+        return np.average(x[:-1], weights=weights) if len(x) > 1 else np.nan
+    return data.groupby('team_id')[stat].rolling(window=len(data), min_periods=2).apply(weighted_avg).reset_index(level=0, drop=True)
+
+def calculate_win_rate_last_n(data, n):
+    wins = (data['team_points'] > data['opponent_points']).astype(int)
+    return wins.groupby('team_id').shift().rolling(window=n, min_periods=1).mean().reset_index(level=0, drop=True)
+
+def calculate_season_average(data, stat):
+    return data.groupby(['team_id', 'season'])[stat].transform(lambda x: x.shift().expanding().mean())
+
+def calculate_season_win_rate(data):
+    wins = (data['team_points'] > data['opponent_points']).astype(int)
+    return data.groupby(['team_id', 'season'])['win'].transform(lambda x: x.shift().expanding().mean())
+
+def calculate_season_point_differential(data):
+    return data.groupby(['team_id', 'season'])['point_difference'].transform(lambda x: x.shift().expanding().mean())
+
+def calculate_cumulative_season_point_differential(data):
+    return data.groupby(['team_id', 'season'])['point_difference'].transform(lambda x: x.shift().cumsum())
+
+def get_engineered_feature_functions():
+    functions = {}
+    for feature in ENGINEERED_FEATURES:
+        if 'variants' in feature:
+            for variant in feature['variants']:
+                func_name = f"{feature['base_name']}_{variant['suffix']}"
+                params = variant.get('params', {})
+                functions[func_name] = lambda df, stat=feature['base_name'], func=variant['function'], params=params: globals()[func](df, stat, **params) if stat in df.columns else pd.Series(np.nan, index=df.index)
+        else:
+            func_name = feature['name']
+            params = feature.get('params', {})
+            functions[func_name] = lambda df, func=feature['function'], params=params: globals()[func](df, **params) if all(param in df.columns for param in params.values()) else pd.Series(np.nan, index=df.index)
+    return functions
 
 def get_feature_names(feature_type=None):
     if feature_type == "engineered":
-        return [f"{feature['base_name']}_{variant['suffix']}" 
-                for feature in FEATURES if feature['type'] == "engineered"
-                for variant in feature['variants']]
+        engineered_names = []
+        for feature in ENGINEERED_FEATURES:
+            if 'variants' in feature:
+                engineered_names.extend([f"{feature['base_name']}_{variant['suffix']}" 
+                                         for variant in feature['variants']])
+            else:
+                engineered_names.append(feature['name'])
+        return engineered_names
     elif feature_type:
         return [f["name"] for f in FEATURES if f["type"] == feature_type]
-    return [f["name"] for f in FEATURES if "name" in f] + get_feature_names("engineered")
-
-# You'll need to implement these functions:
-def calculate_rolling_average(data, stat, n):
-    # Calculate rolling average for last n games
-    pass
-
-def calculate_season_average(data, stat):
-    # Calculate average for the current season
-    pass
-
-def calculate_weighted_average(data, stat):
-    # Calculate weighted average, giving more weight to recent games
-    pass
-
-def calculate_win_rate_last_n(data, n):
-    # Calculate win rate for last n games
-    pass
-
-def calculate_season_win_rate(data):
-    # Calculate win rate for the current season
-    pass
-
-def calculate_season_point_differential(data):
-    # Calculate average point differential for the season
-    pass
-
-# Modify the get_engineered_feature_functions to handle the new structure
-def get_engineered_feature_functions():
-    return {feature['name']: globals()[feature['function']]
-            for feature in ENGINEERED_FEATURES if feature['type'] == "engineered"}
+    return [f["name"] for f in FEATURES if f["type"] == "existing"] + get_feature_names("engineered")

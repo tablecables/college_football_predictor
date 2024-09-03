@@ -221,8 +221,8 @@ def clean_dataframe(df_og):
     df['possessionTime'] = df.groupby('season')['possessionTime'].transform(lambda x: x.fillna(safe_median(x)))
     df['possessionTime'] = df['possessionTime'].fillna(df['possessionTime'].median())
     
-    # Convert back to MM:SS format
-    df['possessionTime'] = df['possessionTime'].apply(lambda x: f"{int(x // 60):02d}:{int(x % 60):02d}" if not pd.isna(x) else np.nan)
+    # # Convert back to MM:SS format
+    # df['possessionTime'] = df['possessionTime'].apply(lambda x: f"{int(x // 60):02d}:{int(x % 60):02d}" if not pd.isna(x) else np.nan)
     
     # Drop rows where both team columns or both opponent columns are null
     team_columns = ['team_conference', 'team_division']
@@ -233,7 +233,47 @@ def clean_dataframe(df_og):
     
     # Drop rows where both opponent columns are null
     df = df.dropna(subset=opponent_columns, how='all')
+
+    # Convert is_home and neutral_site to bool type, then to 1/0
+    bool_columns = ['is_home', 'neutral_site']
+    for col in bool_columns:
+        df[col] = df[col].astype(bool).astype(int)
     
+    # Convert conference_game to bool type, handling potential string values, then to 1/0
+    df['conference_game'] = df['conference_game'].map({'True': True, 'False': False}).astype(bool).astype(int)
+
+    # Drop specified columns
+    df = df.drop(columns=['team_name', 'team_points_stats'], errors='ignore')
+
+    # Convert start_date to datetime
+    df['start_date'] = pd.to_datetime(df['start_date'])
+
+    # Convert percentage columns
+    def convert_to_percentage(x):
+        if pd.isna(x):
+            return np.nan
+        numerator, denominator = map(int, x.split('-'))
+        return numerator / denominator if denominator != 0 else 0.0
+
+    df['thirdDownPct'] = df['thirdDownEff'].apply(convert_to_percentage)
+    df['fourthDownPct'] = df['fourthDownEff'].apply(convert_to_percentage)
+    df['completionPct'] = df['completionAttempts'].apply(convert_to_percentage)
+
+    # Create penalties and penaltyYards from totalPenaltiesYards
+    def split_penalties_yards(x):
+        if pd.isna(x) or x == '':
+            return np.nan, np.nan
+        try:
+            penalties, yards = map(int, x.split('-'))
+            return penalties, yards
+        except ValueError:
+            return np.nan, np.nan
+
+    df['penalties'], df['penaltyYards'] = zip(*df['totalPenaltiesYards'].apply(split_penalties_yards))
+
+    # Drop the original columns
+    df = df.drop(columns=['thirdDownEff', 'fourthDownEff', 'completionAttempts', 'totalPenaltiesYards'])
+
     return df
 
 def generate_and_save_team_pairs(cleaned_df, project_root):
