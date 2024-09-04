@@ -482,11 +482,27 @@ def calculate_total_points_last_n(data, stat, n):
     return result
 
 def calculate_weighted_average(data, stat):
-    def weighted_avg(x):
-        weights = np.arange(1, len(x))
-        return np.average(x[:-1], weights=weights) if len(x) > 1 else np.nan
-    return data.groupby('team_id')[stat].rolling(window=len(data), min_periods=2).apply(weighted_avg).reset_index(level=0, drop=True)
+    def weighted_avg(group):
+        values = group[stat].values
+        size = len(values)
+        if size <= 1:
+            return pd.Series([np.nan] * size, index=group.index)
+        
+        weights = np.arange(1, size)
+        cumsum_vals = np.cumsum(values[:-1] * weights)
+        cumsum_weights = np.cumsum(weights)
+        
+        result = cumsum_vals / cumsum_weights
+        return pd.Series(np.concatenate(([np.nan], result)), index=group.index)
 
+    # Sort the data by team_id and start_date
+    data = data.sort_values(['team_id', 'start_date'])
+    
+    # Calculate the weighted average
+    result = data.groupby('team_id', group_keys=False).apply(weighted_avg)
+    
+    return result
+    
 def calculate_win_rate_last_n(data, n):
     # Sort the dataframe by team_id and start_date
     df = data.sort_values(['team_id', 'start_date'])
