@@ -89,6 +89,7 @@
 -   [x] Build out feature list and functions
     -   [x] Add in additional stats
 -   [x] Implement with preprocessing.py and notebook
+-   [ ] Fix season_so_far to bring it back into use
 -   [ ] add in encoding of categorical variables
 -   [ ] Decide how to deal with initial NaN values at start of dataset (and start of season!)
 -   [ ] Normalize some features (like team_conference)

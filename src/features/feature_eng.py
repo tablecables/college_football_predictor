@@ -317,7 +317,7 @@ ENGINEERED_FEATURES = [
         "variants": [
             {"suffix": "last_3", "function": "calculate_rolling_average", "params": {"n": 3}},
             {"suffix": "last_10", "function": "calculate_rolling_average", "params": {"n": 10}},
-            {"suffix": "season_to_date", "function": "calculate_season_average"},
+            # {"suffix": "season_to_date", "function": "calculate_season_average"},
             {"suffix": "weighted", "function": "calculate_weighted_average"}
         ]
     } for stat in POST_GAME_STATS
@@ -443,7 +443,16 @@ FEATURES = [
 ] + ENGINEERED_FEATURES
 
 def calculate_rolling_average(data, stat, n):
-    return data.groupby('team_id')[stat].shift().rolling(window=n, min_periods=n).mean().reset_index(level=0, drop=True)
+    # Ensure data is sorted by game date and team_id
+    data = data.sort_values(by=['team_id', 'start_date'])
+    
+    return (
+        data.groupby('team_id')[stat]
+        .rolling(window=n, min_periods=n)
+        .mean()
+        .shift()
+        .reset_index(level=0, drop=True)
+    )
 
 def calculate_total_points_last_n(data, stat, n):
     print(f"Calculating total points for last {n} games using stat: {stat}")  # Debug print
@@ -479,16 +488,33 @@ def calculate_win_rate_last_n(data, n):
         .rolling(window=n, min_periods=n)
         .mean()
     )
-    
-    # Fill NaN values with 0.5
-    win_rate = win_rate.fillna(0.5)
 
     print(f"Win rate calculation complete. Shape: {win_rate.shape}")  # Debug print
     
     return win_rate
 
-def calculate_season_average(data, stat):
-    return data.groupby(['team_id', 'season'])[stat].transform(lambda x: x.shift().expanding().mean())
+def calculate_season_average_corrected(data, stat):
+    # Sort the data by team_id, season, and start_date
+    data = data.sort_values(['team_id', 'season', 'start_date'], ascending=True)
+    
+    # Calculate the cumulative sum and count of the stat
+    cumsum = data.groupby(['team_id', 'season'])[stat].cumsum()
+    cumcount = data.groupby(['team_id', 'season']).cumcount() + 1
+    
+    # Shift both cumsum and cumcount to exclude the current game
+    cumsum_shifted = cumsum.shift()
+    cumcount_shifted = cumcount.shift()
+    
+    # Calculate the season-to-date average, excluding the current game
+    season_avg = cumsum_shifted / cumcount_shifted
+    
+    # Identify the first game of each team-season combination
+    first_game = data.groupby(['team_id', 'season']).transform('first')
+    
+    # Set NaN for the first game of each team-season combination
+    season_avg[first_game[stat] == data[stat]] = np.nan
+    
+    return season_avg
 
 def calculate_season_win_rate(data):
     print("Calculating season win rate")  # Debug print
