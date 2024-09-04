@@ -15,9 +15,14 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     for feature_name, func in engineered_funcs.items():
         if feature_name not in df.columns:  # Only add if not already present
             try:
-                new_features[feature_name] = func(df)
+                print(f"Calculating feature: {feature_name}")  # Debug print
+                new_feature = func(df)
+                print(f"Feature {feature_name} shape: {new_feature.shape}")  # Debug print
+                new_features[feature_name] = new_feature
             except KeyError as e:
                 print(f"Warning: Could not calculate {feature_name}. Missing column: {str(e)}")
+            except Exception as e:
+                print(f"Error calculating {feature_name}: {str(e)}")
     
     # Create a new DataFrame with engineered features and concatenate with original
     engineered_df = pd.DataFrame(new_features, index=df.index)
@@ -37,6 +42,8 @@ def preprocess_data(df: pd.DataFrame, selected_features: list = None) -> pd.Data
     df = engineer_features(df)  # Engineer features first
     df = select_features(df, selected_features)  # Then select features
     return df
+
+
 
 # You might add more preprocessing steps here, like handling missing values,
 # encoding categorical variables, etc.

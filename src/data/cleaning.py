@@ -221,9 +221,6 @@ def clean_dataframe(df_og):
     df['possessionTime'] = df.groupby('season')['possessionTime'].transform(lambda x: x.fillna(safe_median(x)))
     df['possessionTime'] = df['possessionTime'].fillna(df['possessionTime'].median())
     
-    # # Convert back to MM:SS format
-    # df['possessionTime'] = df['possessionTime'].apply(lambda x: f"{int(x // 60):02d}:{int(x % 60):02d}" if not pd.isna(x) else np.nan)
-    
     # Drop rows where both team columns or both opponent columns are null
     team_columns = ['team_conference', 'team_division']
     opponent_columns = ['opponent_conference', 'opponent_division']

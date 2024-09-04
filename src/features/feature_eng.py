@@ -347,14 +347,14 @@ ENGINEERED_FEATURES = [
         "name": "points_scored_last_3",
         "description": "Average points scored in the last 3 games",
         "type": "engineered",
-        "function": "calculate_rolling_average",
-        "params": {"stat": "points", "n": 3}
+        "function": "calculate_total_points_last_n",
+        "params": {"stat": "team_points", "n": 3}
     },
     {
         "name": "points_allowed_last_3",
         "description": "Average points allowed in the last 3 games",
         "type": "engineered",
-        "function": "calculate_rolling_average",
+        "function": "calculate_total_points_last_n",
         "params": {"stat": "opponent_points", "n": 3}
     },
     {
@@ -429,11 +429,36 @@ FEATURES = [
         "description": "Opponent's conference",
         "type": "existing",
         "categorical": True
+    },
+    {
+        "name": "win",
+        "description": "Did the team win?",
+        "type": "existing"
+    },
+    {
+        "name": "start_date",
+        "description": "Game date and time",
+        "type": "existing"
     }
 ] + ENGINEERED_FEATURES
 
 def calculate_rolling_average(data, stat, n):
-    return data.groupby('team_id')[stat].shift().rolling(window=n, min_periods=1).mean().reset_index(level=0, drop=True)
+    return data.groupby('team_id')[stat].shift().rolling(window=n, min_periods=n).mean().reset_index(level=0, drop=True)
+
+def calculate_total_points_last_n(data, stat, n):
+    print(f"Calculating total points for last {n} games using stat: {stat}")  # Debug print
+    
+    # Ensure data is sorted by game date and team_id
+    data = data.sort_values(by=['team_id', 'start_date'])
+    
+    # Calculate total points for the last n games
+    result = (
+        data.groupby('team_id')[stat]
+        .shift()
+        .rolling(window=n, min_periods=n)
+        .sum()
+    )
+    return result
 
 def calculate_weighted_average(data, stat):
     def weighted_avg(x):
@@ -442,15 +467,47 @@ def calculate_weighted_average(data, stat):
     return data.groupby('team_id')[stat].rolling(window=len(data), min_periods=2).apply(weighted_avg).reset_index(level=0, drop=True)
 
 def calculate_win_rate_last_n(data, n):
-    wins = (data['team_points'] > data['opponent_points']).astype(int)
-    return wins.groupby('team_id').shift().rolling(window=n, min_periods=1).mean().reset_index(level=0, drop=True)
+    print(f"Calculating win rate for last {n} games")  # Debug print
+    
+    # Ensure data is sorted by game date and team_id
+    data = data.sort_values(by=['team_id', 'start_date'])
+    
+    # Calculate win rate for the last n games
+    win_rate = (
+        data.groupby('team_id')['win']
+        .shift()
+        .rolling(window=n, min_periods=n)
+        .mean()
+    )
+    
+    # Fill NaN values with 0.5
+    win_rate = win_rate.fillna(0.5)
+
+    print(f"Win rate calculation complete. Shape: {win_rate.shape}")  # Debug print
+    
+    return win_rate
 
 def calculate_season_average(data, stat):
     return data.groupby(['team_id', 'season'])[stat].transform(lambda x: x.shift().expanding().mean())
 
 def calculate_season_win_rate(data):
-    wins = (data['team_points'] > data['opponent_points']).astype(int)
-    return data.groupby(['team_id', 'season'])['win'].transform(lambda x: x.shift().expanding().mean())
+    print("Calculating season win rate")  # Debug print
+    
+    # Ensure data is sorted by game date and team_id
+    data = data.sort_values(by=['team_id', 'season', 'start_date'])
+    
+    # Calculate win rate for the season
+    win_rate = (
+        data.groupby(['team_id', 'season'])['win']
+        .expanding()
+        .mean()
+        .reset_index(level=[0, 1], drop=True)
+        .shift()
+    )
+    
+    print(f"Season win rate calculation complete. Shape: {win_rate.shape}")  # Debug print
+    
+    return win_rate
 
 def calculate_season_point_differential(data):
     return data.groupby(['team_id', 'season'])['point_difference'].transform(lambda x: x.shift().expanding().mean())
@@ -469,7 +526,7 @@ def get_engineered_feature_functions():
         else:
             func_name = feature['name']
             params = feature.get('params', {})
-            functions[func_name] = lambda df, func=feature['function'], params=params: globals()[func](df, **params) if all(param in df.columns for param in params.values()) else pd.Series(np.nan, index=df.index)
+            functions[func_name] = lambda df, func=feature['function'], params=params: globals()[func](df, **params)
     return functions
 
 def get_feature_names(feature_type=None):

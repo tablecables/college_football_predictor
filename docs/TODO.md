@@ -3,7 +3,9 @@
 ## Current Action(s)
 -   [ ] Need to pull 2024 schedule separately, only pulls complete games
 -   [ ] Feature selection
-    -   [ ] cleanup cateogircal and initial nans
+    -   [ ] **Fixing rolling averages and sums so that we fill the NaN**
+        -   Exclude current game, season "so far", etc.
+    -   [ ] cleanup categoircal and initial nans
     -   [ ] outlier and normalize
     -   [ ] matchup feature
 
@@ -88,7 +90,7 @@
     -   [x] Add in additional stats
 -   [x] Implement with preprocessing.py and notebook
 -   [ ] add in encoding of categorical variables
--   [ ] Decide how to deal with initial NaN values at start of dataset
+-   [ ] Decide how to deal with initial NaN values at start of dataset (and start of season!)
 -   [ ] Normalize some features (like team_conference)
 -   [ ] Feature selection
 
