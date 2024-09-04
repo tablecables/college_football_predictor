@@ -15,9 +15,7 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     for feature_name, func in engineered_funcs.items():
         if feature_name not in df.columns:  # Only add if not already present
             try:
-                print(f"Calculating feature: {feature_name}")  # Debug print
                 new_feature = func(df)
-                print(f"Feature {feature_name} shape: {new_feature.shape}")  # Debug print
                 new_features[feature_name] = new_feature
             except KeyError as e:
                 print(f"Warning: Could not calculate {feature_name}. Missing column: {str(e)}")

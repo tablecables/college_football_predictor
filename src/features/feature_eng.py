@@ -323,6 +323,20 @@ ENGINEERED_FEATURES = [
     } for stat in POST_GAME_STATS
 ] + [
     {
+        "name": "win_rate_last_1",
+        "description": "Result of their last game",
+        "type": "engineered",
+        "function": "calculate_win_rate_last_n",
+        "params": {"n": 1}
+    },
+    {
+        "name": "win_rate_last_3",
+        "description": "Win rate of the team in their last 3 games",
+        "type": "engineered",
+        "function": "calculate_win_rate_last_n",
+        "params": {"n": 3}
+    },
+    {
         "name": "win_rate_last_5",
         "description": "Win rate of the team in their last 5 games",
         "type": "engineered",
@@ -336,13 +350,13 @@ ENGINEERED_FEATURES = [
         "function": "calculate_win_rate_last_n",
         "params": {"n": 10}
     },
-    {
-        "name": "win_rate_season",
-        "description": "Win rate of the team in the current season",
-        "type": "engineered",
-        "function": "calculate_season_win_rate",
-        "params": {}
-    },
+    # {
+    #     "name": "win_rate_season",
+    #     "description": "Win rate of the team in the current season",
+    #     "type": "engineered",
+    #     "function": "calculate_season_win_rate",
+    #     "params": {}
+    # },
     {
         "name": "points_scored_last_3",
         "description": "Average points scored in the last 3 games",
@@ -357,20 +371,20 @@ ENGINEERED_FEATURES = [
         "function": "calculate_total_points_last_n",
         "params": {"stat": "opponent_points", "n": 3}
     },
-    {
-        "name": "point_differential_season_avg",
-        "description": "Average point differential for the season",
-        "type": "engineered",
-        "function": "calculate_season_point_differential",
-        "params": {}
-    },
-    {
-        "name": "point_differential_season_cumulative",
-        "description": "Cumulative point differential for the season",
-        "type": "engineered",
-        "function": "calculate_cumulative_season_point_differential",
-        "params": {}
-    }
+    # {
+    #     "name": "point_differential_season_avg",
+    #     "description": "Average point differential for the season",
+    #     "type": "engineered",
+    #     "function": "calculate_season_point_differential",
+    #     "params": {}
+    # },
+    # {
+    #     "name": "point_differential_season_cumulative",
+    #     "description": "Cumulative point differential for the season",
+    #     "type": "engineered",
+    #     "function": "calculate_cumulative_season_point_differential",
+    #     "params": {}
+    # }
 ]
 
 FEATURES = [
@@ -455,18 +469,16 @@ def calculate_rolling_average(data, stat, n):
     )
 
 def calculate_total_points_last_n(data, stat, n):
-    print(f"Calculating total points for last {n} games using stat: {stat}")  # Debug print
+    # Sort the dataframe by team_id and start_date
+    df = data.sort_values(['team_id', 'start_date'])
     
-    # Ensure data is sorted by game date and team_id
-    data = data.sort_values(by=['team_id', 'start_date'])
+    # Define a function to calculate the rolling sum for each group
+    def rolling_sum(group):
+        return group.shift().rolling(window=n, min_periods=n).sum()
     
-    # Calculate total points for the last n games
-    result = (
-        data.groupby('team_id')[stat]
-        .shift()
-        .rolling(window=n, min_periods=n)
-        .sum()
-    )
+    # Apply the rolling sum function to each team's group
+    result = df.groupby('team_id')[stat].transform(rolling_sum)
+    
     return result
 
 def calculate_weighted_average(data, stat):
@@ -476,22 +488,27 @@ def calculate_weighted_average(data, stat):
     return data.groupby('team_id')[stat].rolling(window=len(data), min_periods=2).apply(weighted_avg).reset_index(level=0, drop=True)
 
 def calculate_win_rate_last_n(data, n):
-    print(f"Calculating win rate for last {n} games")  # Debug print
+    # Sort the dataframe by team_id and start_date
+    df = data.sort_values(['team_id', 'start_date'])
     
-    # Ensure data is sorted by game date and team_id
-    data = data.sort_values(by=['team_id', 'start_date'])
+    # Define a function to calculate the rolling win rate for each group
+    def rolling_win_rate(group):
+        # Shift to exclude current game, then calculate rolling sum of wins and count of games
+        wins = group.shift().rolling(window=n, min_periods=n).sum()
+        games = group.shift().rolling(window=n, min_periods=n).count()
+        
+        # Calculate win rate
+        win_rate = wins / games
+        
+        # Replace win rate with NaN where we don't have enough games
+        win_rate = win_rate.where(games == n, np.nan)
+        
+        return win_rate
     
-    # Calculate win rate for the last n games
-    win_rate = (
-        data.groupby('team_id')['win']
-        .shift()
-        .rolling(window=n, min_periods=n)
-        .mean()
-    )
-
-    print(f"Win rate calculation complete. Shape: {win_rate.shape}")  # Debug print
+    # Apply the rolling win rate function to each team's group
+    result = df.groupby('team_id')['win'].transform(rolling_win_rate)
     
-    return win_rate
+    return result
 
 def calculate_season_average_corrected(data, stat):
     # Sort the data by team_id, season, and start_date

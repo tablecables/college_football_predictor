@@ -5,6 +5,7 @@
 -   [ ] Feature selection
     -   [ ] **Fixing rolling averages and sums so that we fill the NaN**
         -   Exclude current game, season "so far", etc.
+    -   [x] win rate still broken, too long
     -   [ ] cleanup categoircal and initial nans
     -   [ ] outlier and normalize
     -   [ ] matchup feature
