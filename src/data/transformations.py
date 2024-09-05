@@ -3,6 +3,7 @@
 import sqlite3
 import json
 import pandas as pd
+import numpy as np
 
 def connect_to_db(db_path):
     return sqlite3.connect(db_path)
@@ -13,21 +14,74 @@ def get_table_names(conn):
     return [table[0] for table in cursor.fetchall()]
 
 def json_to_dataframe(json_data):
-    return pd.json_normalize(json_data)
+    df = pd.json_normalize(json_data)
+    return df.map(lambda x: json.dumps(x) if isinstance(x, (dict, list)) else x)
 
 def transform_table(conn, table_name):
     cursor = conn.cursor()
     cursor.execute(f"SELECT data FROM {table_name}")
     json_data = [json.loads(row[0]) for row in cursor.fetchall()]
+    
+    if not json_data:
+        print(f"Warning: No data found for table {table_name}")
+        return pd.DataFrame()
+    
+    if table_name == 'team_game_stats':
+        return transform_team_game_stats(json_data)
+    
     df = json_to_dataframe(json_data)
     return df
 
+def transform_team_game_stats(json_data):
+    rows = []
+    for game in json_data:
+        try:
+            for team in game['teams']:
+                row = {
+                    'id': game['id'],
+                    'school_id': team.get('school_id', ''),
+                    'school': team.get('school', ''),
+                    'conference': team.get('conference', ''),
+                    'home_away': team.get('home_away', ''),
+                    'points': team.get('points', '')
+                }
+                for stat in team.get('stats', []):
+                    row[stat.get('category', '')] = stat.get('stat', '')
+                rows.append(row)
+        except Exception as e:
+            print(f"Error processing game data: {e}")
+            print(f"Problematic game data: {game}")
+    return pd.DataFrame(rows)
+
 def save_to_new_db(df, table_name, new_conn):
-    df.to_sql(table_name, new_conn, if_exists='replace', index=False)
+    if not isinstance(df, pd.DataFrame):
+        print(f"Error: Expected DataFrame for table {table_name}, but got {type(df)}")
+        print(f"Data: {df}")
+        return
+    
+    if df.empty:
+        print(f"Warning: Empty DataFrame for table {table_name}")
+        return
+    
+    # Replace any characters that might cause SQL syntax errors
+    df.columns = [str(col).replace(".", "_").replace("[", "_").replace("]", "_") for col in df.columns]
+    
+    # Ensure all data is stored as text
+    for col in df.columns:
+        df[col] = df[col].astype(str)
+    
+    # Use a try-except block to catch and print any errors
+    try:
+        df.to_sql(table_name, new_conn, if_exists='replace', index=False)
+    except Exception as e:
+        print(f"Error saving table {table_name}: {str(e)}")
+        print(f"Problematic columns: {df.columns.tolist()}")
+        print(f"Sample data: \n{df.head()}")
+        raise
 
 def main():
     old_db_path = '../data/01_raw/college_football.db'
-    new_db_path = '../data/02_interim/college_football_tabular.db'
+    new_db_path = '../data/02_interim/college_football.db'
     
     old_conn = connect_to_db(old_db_path)
     new_conn = connect_to_db(new_db_path)

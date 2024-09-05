@@ -277,55 +277,35 @@ def get_calendar(year, games_api):
     
     return calendar_data
 
-def fetch_elo_ratings(start_year, end_year, ratings_api):
+def fetch_ratings(start_year, end_year, ratings_api, rating_type):
+    all_data = []
     for year in range(start_year, end_year + 1):
         try:
-            elo_ratings = ratings_api.get_elo_ratings(year=year)
-            elo_data = [rating.to_dict() for rating in elo_ratings]
-            store_raw_data(elo_data, 'elo_ratings', if_exists='replace')
-            print(f"Successfully fetched and stored Elo ratings for {year}")
+            if rating_type == 'elo':
+                ratings = ratings_api.get_elo_ratings(year=year)
+            elif rating_type == 'fpi':
+                ratings = ratings_api.get_fpi_ratings(year=year)
+            elif rating_type == 'sp':
+                ratings = ratings_api.get_sp_ratings(year=year)
+            elif rating_type == 'srs':
+                ratings = ratings_api.get_srs_ratings(year=year)
+            else:
+                raise ValueError(f"Unknown rating type: {rating_type}")
+            
+            data = [rating.to_dict() for rating in ratings]
+            all_data.extend(data)
+            print(f"Successfully fetched {rating_type.upper()} ratings for {year}")
         except ApiException as e:
-            print(f"Exception when calling RatingsApi->get_elo_ratings for year {year}: {e}\n")
+            print(f"Exception when calling RatingsApi->get_{rating_type}_ratings for year {year}: {e}\n")
         time.sleep(1)  # Add a delay to avoid hitting rate limits
-
-def fetch_fpi_ratings(start_year, end_year, ratings_api):
-    for year in range(start_year, end_year + 1):
-        try:
-            fpi_ratings = ratings_api.get_fpi_ratings(year=year)
-            fpi_data = [rating.to_dict() for rating in fpi_ratings]
-            store_raw_data(fpi_data, 'fpi_ratings', if_exists='replace')
-            print(f"Successfully fetched and stored FPI ratings for {year}")
-        except ApiException as e:
-            print(f"Exception when calling RatingsApi->get_fpi_ratings for year {year}: {e}\n")
-        time.sleep(1)  # Add a delay to avoid hitting rate limits
-
-def fetch_sp_ratings(start_year, end_year, ratings_api):
-    for year in range(start_year, end_year + 1):
-        try:
-            sp_ratings = ratings_api.get_sp_ratings(year=year)
-            sp_data = [rating.to_dict() for rating in sp_ratings]
-            store_raw_data(sp_data, 'sp_ratings', if_exists='replace')
-            print(f"Successfully fetched and stored SP+ ratings for {year}")
-        except ApiException as e:
-            print(f"Exception when calling RatingsApi->get_sp_ratings for year {year}: {e}\n")
-        time.sleep(1)  # Add a delay to avoid hitting rate limits
-
-def fetch_srs_ratings(start_year, end_year, ratings_api):
-    for year in range(start_year, end_year + 1):
-        try:
-            srs_ratings = ratings_api.get_srs_ratings(year=year)
-            srs_data = [rating.to_dict() for rating in srs_ratings]
-            store_raw_data(srs_data, 'srs_ratings', if_exists='replace')
-            print(f"Successfully fetched and stored SRS ratings for {year}")
-        except ApiException as e:
-            print(f"Exception when calling RatingsApi->get_srs_ratings for year {year}: {e}\n")
-        time.sleep(1)  # Add a delay to avoid hitting rate limits
+    
+    if all_data:
+        store_raw_data(all_data, f'{rating_type}_ratings', if_exists='replace')
+        print(f"Successfully stored all {rating_type.upper()} ratings data")
 
 def fetch_all_ratings(start_year, end_year, ratings_api):
-    fetch_elo_ratings(start_year, end_year, ratings_api)
-    fetch_fpi_ratings(start_year, end_year, ratings_api)
-    fetch_sp_ratings(start_year, end_year, ratings_api)
-    fetch_srs_ratings(start_year, end_year, ratings_api)
+    for rating_type in ['elo', 'fpi', 'sp', 'srs']:
+        fetch_ratings(start_year, end_year, ratings_api, rating_type)
     print("Finished fetching all ratings data")
 
 def fetch_pregame_win_probabilities(start_year, end_year, metrics_api):
