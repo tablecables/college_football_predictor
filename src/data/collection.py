@@ -56,6 +56,21 @@ def initialize_ratings_api():
     configuration = configure_api(api_key)
     return cfbd.RatingsApi(cfbd.ApiClient(configuration))
 
+def initialize_metrics_api():
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    return cfbd.MetricsApi(cfbd.ApiClient(configuration))
+
+def initialize_recruiting_api():
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    return cfbd.RecruitingApi(cfbd.ApiClient(configuration))
+
+def initialize_betting_api():
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    return cfbd.BettingApi(cfbd.ApiClient(configuration))
+
 def fetch_games(start_year, end_year, games_api):
     last_season = get_last_update('games')
     
@@ -312,3 +327,102 @@ def fetch_all_ratings(start_year, end_year, ratings_api):
     fetch_sp_ratings(start_year, end_year, ratings_api)
     fetch_srs_ratings(start_year, end_year, ratings_api)
     print("Finished fetching all ratings data")
+
+def fetch_pregame_win_probabilities(start_year, end_year, metrics_api):
+    last_season = get_last_update('pregame_win_probabilities')
+    
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = last_season
+    
+    for year in range(start_year, end_year + 1):
+        year_probabilities = []
+        for season_type in ['regular', 'postseason']:
+            try:
+                probabilities = metrics_api.get_pregame_win_probabilities(
+                    year=year,
+                    season_type=season_type
+                )
+                year_probabilities.extend([prob.to_dict() for prob in probabilities])
+                print(f"Successfully fetched pregame win probabilities for {year} {season_type} season")
+            except ApiException as e:
+                print(f"Exception when calling MetricsApi->get_pregame_win_probabilities for year {year} {season_type} season: {e}\n")
+            
+            time.sleep(1)  # Add a delay to avoid hitting rate limits
+        
+        if year_probabilities:
+            if year == last_season:
+                # Replace data for the last season
+                store_raw_data(year_probabilities, 'pregame_win_probabilities', if_exists='replace')
+                print(f"Replaced pregame win probabilities data for year {year}")
+            else:
+                # Append data for new years
+                store_raw_data(year_probabilities, 'pregame_win_probabilities', if_exists='append')
+                print(f"Appended pregame win probabilities data for year {year}")
+
+    print("Finished fetching pregame win probabilities data")
+
+def fetch_team_recruiting(start_year, end_year, recruiting_api):
+    last_year = get_last_update('team_recruiting')
+    
+    # If we have data, start from the last year
+    if last_year is not None:
+        start_year = last_year
+    
+    for year in range(start_year, end_year + 1):
+        try:
+            recruiting_data = recruiting_api.get_recruiting_teams(year=year)
+            team_recruiting = [data.to_dict() for data in recruiting_data]
+            
+            if year == last_year:
+                # Replace data for the last year
+                store_raw_data(team_recruiting, 'team_recruiting', if_exists='replace')
+                print(f"Replaced team recruiting data for year {year}")
+            else:
+                # Append data for new years
+                store_raw_data(team_recruiting, 'team_recruiting', if_exists='append')
+                print(f"Appended team recruiting data for year {year}")
+            
+            print(f"Successfully fetched team recruiting data for {year}")
+        except ApiException as e:
+            print(f"Exception when calling RecruitingApi->get_recruiting_teams for year {year}: {e}\n")
+        
+        time.sleep(1)  # Add a delay to avoid hitting rate limits
+    
+    print("Finished fetching team recruiting data")
+
+def fetch_betting_lines(start_year, end_year, betting_api):
+    last_season = get_last_update('betting_lines')
+    
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = max(last_season, 2013)
+    else:
+        start_year = max(start_year, 2013)
+    
+    for year in range(start_year, end_year + 1):
+        year_lines = []
+        for season_type in ['regular', 'postseason']:
+            try:
+                lines = betting_api.get_lines(
+                    year=year,
+                    season_type=season_type
+                )
+                year_lines.extend([line.to_dict() for line in lines])
+                print(f"Successfully fetched betting lines for {year} {season_type} season")
+            except ApiException as e:
+                print(f"Exception when calling BettingApi->get_lines for year {year} {season_type} season: {e}\n")
+            
+            time.sleep(1)  # Add a delay to avoid hitting rate limits
+        
+        if year_lines:
+            if year == last_season:
+                # Replace data for the last season
+                store_raw_data(year_lines, 'betting_lines', if_exists='replace')
+                print(f"Replaced betting lines data for year {year}")
+            else:
+                # Append data for new years
+                store_raw_data(year_lines, 'betting_lines', if_exists='append')
+                print(f"Appended betting lines data for year {year}")
+
+    print("Finished fetching betting lines data")

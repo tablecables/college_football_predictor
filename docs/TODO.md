@@ -1,7 +1,7 @@
 # TODO
 
 ## Current Action(s)
--   [ ] Need to pull 2024 schedule separately, only pulls complete games
+-   [x] Need to pull 2024 schedule separately, only pulls complete games
 -   [ ] Feature selection
     -   [ ] **Fixing rolling averages and sums so that we fill the NaN**
         -   Exclude current game, season "so far", etc.
@@ -22,15 +22,16 @@
 -   [x] New API pull with 2021-24
 -   [x] Team talent composite
 -   [x] Pull 2001-2024 data
--   [ ] 2024 schedule for prediction (check pac-12)
+-   [x] 2024 schedule for prediction (check pac-12)
+-   [ ] Pull team rosters and season player stats
 -   [ ] Figure out where the duplicates are coming from, currently fixed in cleaning
 -   [ ] Get coaches
 -   [ ] Pull teams/matchup to replace history?
--   [ ] Add in post-season data
+-   [x] Add in post-season data
     -   [ ] We have some championship games in regular data as per notes, confirm no overlap of games. When we go to create a post-season flag, which one is correct?
 
 -   [ ] Other Data to Consider
-    -   [ ] Betting Lines
+    -   [x] Betting Lines
     -   [ ] Player level data
 
 
