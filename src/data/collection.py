@@ -28,10 +28,23 @@ def configure_api(api_key):
 def convert_to_dataframe(games):
     return pd.DataFrame([game.to_dict() for game in games])
 
-def fetch_games(start_year, end_year):
+def initialize_games_api():
     api_key = load_api_key()
     configuration = configure_api(api_key)
-    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    return cfbd.GamesApi(cfbd.ApiClient(configuration))
+
+def initialize_stats_api():
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    return cfbd.StatsApi(cfbd.ApiClient(configuration))
+
+def initialize_teams_api():
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    return cfbd.TeamsApi(cfbd.ApiClient(configuration))
+
+def fetch_games(start_year, end_year):
+    api_instance = initialize_games_api()
     
     all_games = []
     for year in range(start_year, end_year + 1):
@@ -47,9 +60,7 @@ def fetch_games(start_year, end_year):
     return all_games if all_games else None
 
 def fetch_team_game_stats(start_year, end_year):
-    api_key = load_api_key()
-    configuration = configure_api(api_key)
-    api_instance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    api_instance = initialize_games_api()
     
     all_team_stats = []
     for year in range(start_year, end_year + 1):
@@ -103,9 +114,7 @@ def fetch_team_game_stats(start_year, end_year):
     return team_stats_df
 
 def fetch_advanced_team_game_stats(start_year, end_year, df, max_teams=None):
-    api_key = load_api_key()
-    configuration = configure_api(api_key)
-    api_instance = cfbd.StatsApi(cfbd.ApiClient(configuration))
+    api_instance = initialize_stats_api()
     
     all_stats = []
     start_time = time.time()
@@ -151,9 +160,7 @@ def fetch_advanced_team_game_stats(start_year, end_year, df, max_teams=None):
     return df_stats, execution_time
 
 def fetch_team_talent(start_year, end_year):
-    api_key = load_api_key()
-    configuration = configure_api(api_key)
-    api_instance = cfbd.TeamsApi(cfbd.ApiClient(configuration))
+    api_instance = initialize_teams_api()
     
     all_talent = []
     for year in range(start_year, end_year + 1):
