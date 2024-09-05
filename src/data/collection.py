@@ -51,6 +51,11 @@ def initialize_teams_api():
     configuration = configure_api(api_key)
     return cfbd.TeamsApi(cfbd.ApiClient(configuration))
 
+def initialize_ratings_api():
+    api_key = load_api_key()
+    configuration = configure_api(api_key)
+    return cfbd.RatingsApi(cfbd.ApiClient(configuration))
+
 def fetch_games(start_year, end_year, games_api):
     last_season = get_last_update('games')
     
@@ -256,3 +261,54 @@ def get_calendar(year, games_api):
         calendar_data = fetch_calendar(year, games_api)
     
     return calendar_data
+
+def fetch_elo_ratings(start_year, end_year, ratings_api):
+    for year in range(start_year, end_year + 1):
+        try:
+            elo_ratings = ratings_api.get_elo_ratings(year=year)
+            elo_data = [rating.to_dict() for rating in elo_ratings]
+            store_raw_data(elo_data, 'elo_ratings', if_exists='replace')
+            print(f"Successfully fetched and stored Elo ratings for {year}")
+        except ApiException as e:
+            print(f"Exception when calling RatingsApi->get_elo_ratings for year {year}: {e}\n")
+        time.sleep(1)  # Add a delay to avoid hitting rate limits
+
+def fetch_fpi_ratings(start_year, end_year, ratings_api):
+    for year in range(start_year, end_year + 1):
+        try:
+            fpi_ratings = ratings_api.get_fpi_ratings(year=year)
+            fpi_data = [rating.to_dict() for rating in fpi_ratings]
+            store_raw_data(fpi_data, 'fpi_ratings', if_exists='replace')
+            print(f"Successfully fetched and stored FPI ratings for {year}")
+        except ApiException as e:
+            print(f"Exception when calling RatingsApi->get_fpi_ratings for year {year}: {e}\n")
+        time.sleep(1)  # Add a delay to avoid hitting rate limits
+
+def fetch_sp_ratings(start_year, end_year, ratings_api):
+    for year in range(start_year, end_year + 1):
+        try:
+            sp_ratings = ratings_api.get_sp_ratings(year=year)
+            sp_data = [rating.to_dict() for rating in sp_ratings]
+            store_raw_data(sp_data, 'sp_ratings', if_exists='replace')
+            print(f"Successfully fetched and stored SP+ ratings for {year}")
+        except ApiException as e:
+            print(f"Exception when calling RatingsApi->get_sp_ratings for year {year}: {e}\n")
+        time.sleep(1)  # Add a delay to avoid hitting rate limits
+
+def fetch_srs_ratings(start_year, end_year, ratings_api):
+    for year in range(start_year, end_year + 1):
+        try:
+            srs_ratings = ratings_api.get_srs_ratings(year=year)
+            srs_data = [rating.to_dict() for rating in srs_ratings]
+            store_raw_data(srs_data, 'srs_ratings', if_exists='replace')
+            print(f"Successfully fetched and stored SRS ratings for {year}")
+        except ApiException as e:
+            print(f"Exception when calling RatingsApi->get_srs_ratings for year {year}: {e}\n")
+        time.sleep(1)  # Add a delay to avoid hitting rate limits
+
+def fetch_all_ratings(start_year, end_year, ratings_api):
+    fetch_elo_ratings(start_year, end_year, ratings_api)
+    fetch_fpi_ratings(start_year, end_year, ratings_api)
+    fetch_sp_ratings(start_year, end_year, ratings_api)
+    fetch_srs_ratings(start_year, end_year, ratings_api)
+    print("Finished fetching all ratings data")
