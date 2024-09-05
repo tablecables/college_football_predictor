@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import pandas as pd
 import random
 import time
+import sqlite3
+from .warehouse import store_raw_data, get_last_update
 
 # Define Power 5 conferences
 POWER_5_CONFERENCES = {
@@ -15,6 +17,10 @@ POWER_5_CONFERENCES = {
     'Pac-12': 'PAC'
 }
 
+#! maybe remove
+def convert_to_dataframe(games):
+    return pd.DataFrame([game.to_dict() for game in games])
+
 def load_api_key():
     load_dotenv()
     return os.getenv("API_KEY")
@@ -24,9 +30,6 @@ def configure_api(api_key):
     configuration.api_key['Authorization'] = api_key
     configuration.api_key_prefix['Authorization'] = 'Bearer'
     return configuration
-
-def convert_to_dataframe(games):
-    return pd.DataFrame([game.to_dict() for game in games])
 
 def initialize_games_api():
     api_key = load_api_key()
@@ -43,21 +46,53 @@ def initialize_teams_api():
     configuration = configure_api(api_key)
     return cfbd.TeamsApi(cfbd.ApiClient(configuration))
 
-def fetch_games(start_year, end_year):
-    api_instance = initialize_games_api()
-    
+def fetch_games(start_year, end_year, games_api):
+    last_season = get_last_update('games')
     all_games = []
+
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = last_season
+    
     for year in range(start_year, end_year + 1):
+        year_games = []
         for conference in POWER_5_CONFERENCES.values():
             try:
-                games = api_instance.get_games(year=year, conference=conference)
-                all_games.extend(games)
-                print(f"Successfully fetched games for {year}, conference: {conference}")
+                # Fetch regular season games
+                regular_games = games_api.get_games(year=year, conference=conference, season_type='regular')
+                if regular_games:
+                    year_games.extend(regular_games)
+                    print(f"Successfully fetched regular season games for {year}, conference: {conference}")
+                else:
+                    print(f"No regular season games found for {year}, conference: {conference}")
+                
+                # Fetch postseason games
+                postseason_games = games_api.get_games(year=year, conference=conference, season_type='postseason')
+                if postseason_games:
+                    year_games.extend(postseason_games)
+                    print(f"Successfully fetched postseason games for {year}, conference: {conference}")
+                else:
+                    print(f"No postseason games found for {year}, conference: {conference}")
+                
             except ApiException as e:
                 print(f"Exception when calling GamesApi->get_games for year {year}, conference {conference}: {e}\n")
-                print(f"Response body: {e.body}\n")
-    
-    return all_games if all_games else None
+        
+        if year_games:
+            df = convert_to_dataframe(year_games)
+            if year == last_season:
+                # Replace data for the last season
+                store_raw_data(df, 'games', if_exists='replace')
+                print(f"Replaced data for year {year}")
+            else:
+                # Append data for new years
+                store_raw_data(df, 'games', if_exists='append')
+                print(f"Appended data for year {year}")
+            
+            all_games.extend(year_games)
+
+    if all_games:
+        return convert_to_dataframe(all_games)
+    return None
 
 def fetch_team_game_stats(start_year, end_year):
     api_instance = initialize_games_api()
