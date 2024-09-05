@@ -14,32 +14,40 @@ def create_connection():
         print(f"Error connecting to database: {e}")
     return conn
 
-def store_raw_data(df, table_name, if_exists='append'):
+def store_raw_data(data, table_name, if_exists='append'):
     conn = create_connection()
     if conn is not None:
-        # Convert list columns to JSON strings
-        for column in df.columns:
-            if df[column].apply(lambda x: isinstance(x, list)).any():
-                df[column] = df[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
-
-        # Store the data
-        df.to_sql(table_name, conn, if_exists=if_exists, index=False)
+        cursor = conn.cursor()
         
-        if if_exists == 'replace':
-            print(f"Data for {table_name} has been replaced")
-        else:
-            print(f"New data appended to {table_name}")
-
+        # Check if the table exists
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        table_exists = cursor.fetchone() is not None
+        
+        # Convert data to JSON strings
+        json_data = [json.dumps(item) for item in data]
+        
+        if not table_exists or if_exists == 'replace':
+            cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+            cursor.execute(f"CREATE TABLE {table_name} (data JSON)")
+            print(f"{'Created' if not table_exists else 'Replaced'} table {table_name}")
+        
+        # Insert data
+        cursor.executemany(f"INSERT INTO {table_name} (data) VALUES (?)", [(item,) for item in json_data])
+        
+        conn.commit()
         conn.close()
+        print(f"Data {'replaced' if if_exists == 'replace' else 'appended'} in {table_name}")
     else:
         print("Error! Cannot create the database connection.")
 
 def fetch_raw_data(table_name):
     conn = create_connection()
     if conn is not None:
-        df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT data FROM {table_name}")
+        raw_data = cursor.fetchall()
         conn.close()
-        return df
+        return [json.loads(item[0]) for item in raw_data]
     else:
         print("Error! Cannot create the database connection.")
         return None
@@ -56,18 +64,11 @@ def get_last_update(table_name):
             conn.close()
             return None
         
-        query = f"SELECT MAX(season) as last_season FROM {table_name}"
-        try:
-            df = pd.read_sql_query(query, conn)
-            conn.close()
-            
-            last_season = df['last_season'].iloc[0]
-            
-            return last_season
-        except pd.io.sql.DatabaseError as e:
-            print(f"Error querying table '{table_name}': {e}")
-            conn.close()
-            return None
+        cursor.execute(f"SELECT MAX(json_extract(data, '$.season')) as last_season FROM {table_name}")
+        result = cursor.fetchone()
+        conn.close()
+        
+        return result[0] if result and result[0] is not None else None
     else:
         print("Error! Cannot create the database connection.")
         return None
