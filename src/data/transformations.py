@@ -1,37 +1,47 @@
 # Data Transformations
 
-from .warehouse import fetch_raw_data
+import sqlite3
+import json
+import pandas as pd
 
-def process_team_game_stats():
-    df = fetch_raw_data('team_game_stats')
-    if df is not None:
-        # Expand the 'teams' column
-        df = df.explode('teams')
-        df = pd.concat([df.drop(['teams'], axis=1), 
-                        df['teams'].apply(pd.Series)], axis=1)
+def connect_to_db(db_path):
+    return sqlite3.connect(db_path)
 
-        # Rename columns for clarity
-        df = df.rename(columns={
-            'school_id': 'team_id',
-            'school': 'team_name',
-            'conference': 'team_conference'
-        })
+def get_table_names(conn):
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    return [table[0] for table in cursor.fetchall()]
 
-        # Function to safely process stats
-        def process_stats(stats):
-            if isinstance(stats, list):
-                return {item['category']: item['stat'] for item in stats if isinstance(item, dict) and 'category' in item and 'stat' in item}
-            return {}
+def json_to_dataframe(json_data):
+    return pd.json_normalize(json_data)
 
-        # Explode the 'stats' column
-        stats_df = df['stats'].apply(process_stats).apply(pd.Series)
+def transform_table(conn, table_name):
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT data FROM {table_name}")
+    json_data = [json.loads(row[0]) for row in cursor.fetchall()]
+    df = json_to_dataframe(json_data)
+    return df
 
-        # Merge the exploded stats back into the main dataframe
-        df = pd.concat([df.drop('stats', axis=1), stats_df], axis=1)
+def save_to_new_db(df, table_name, new_conn):
+    df.to_sql(table_name, new_conn, if_exists='replace', index=False)
 
-        # Convert numeric columns to appropriate types
-        numeric_columns = df.columns.drop(['id', 'team_id', 'team_name', 'team_conference', 'home_away'])
-        df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+def main():
+    old_db_path = '../data/01_raw/college_football.db'
+    new_db_path = '../data/02_interim/college_football_tabular.db'
+    
+    old_conn = connect_to_db(old_db_path)
+    new_conn = connect_to_db(new_db_path)
+    
+    table_names = get_table_names(old_conn)
+    
+    for table_name in table_names:
+        print(f"Transforming table: {table_name}")
+        df = transform_table(old_conn, table_name)
+        save_to_new_db(df, table_name, new_conn)
+    
+    old_conn.close()
+    new_conn.close()
+    print("Transformation complete.")
 
-        return df
-    return None
+if __name__ == "__main__":
+    main()
