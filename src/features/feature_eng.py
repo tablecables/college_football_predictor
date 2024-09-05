@@ -317,7 +317,6 @@ ENGINEERED_FEATURES = [
         "variants": [
             {"suffix": "last_3", "function": "calculate_rolling_average", "params": {"n": 3}},
             {"suffix": "last_10", "function": "calculate_rolling_average", "params": {"n": 10}},
-            # {"suffix": "season_to_date", "function": "calculate_season_average"},
             {"suffix": "weighted", "function": "calculate_weighted_average"}
         ]
     } for stat in POST_GAME_STATS
@@ -350,13 +349,20 @@ ENGINEERED_FEATURES = [
         "function": "calculate_win_rate_last_n",
         "params": {"n": 10}
     },
-    # {
-    #     "name": "win_rate_season",
-    #     "description": "Win rate of the team in the current season",
-    #     "type": "engineered",
-    #     "function": "calculate_season_win_rate",
-    #     "params": {}
-    # },
+    {
+        "name": "points_scored_last_1",
+        "description": "Average points scored in the last 1 games",
+        "type": "engineered",
+        "function": "calculate_total_points_last_n",
+        "params": {"stat": "team_points", "n": 1}
+    },
+    {
+        "name": "points_allowed_last_1",
+        "description": "Average points allowed in the last 1 games",
+        "type": "engineered",
+        "function": "calculate_total_points_last_n",
+        "params": {"stat": "opponent_points", "n": 1}
+    },
     {
         "name": "points_scored_last_3",
         "description": "Average points scored in the last 3 games",
@@ -371,20 +377,6 @@ ENGINEERED_FEATURES = [
         "function": "calculate_total_points_last_n",
         "params": {"stat": "opponent_points", "n": 3}
     },
-    # {
-    #     "name": "point_differential_season_avg",
-    #     "description": "Average point differential for the season",
-    #     "type": "engineered",
-    #     "function": "calculate_season_point_differential",
-    #     "params": {}
-    # },
-    # {
-    #     "name": "point_differential_season_cumulative",
-    #     "description": "Cumulative point differential for the season",
-    #     "type": "engineered",
-    #     "function": "calculate_cumulative_season_point_differential",
-    #     "params": {}
-    # }
 ]
 
 FEATURES = [
