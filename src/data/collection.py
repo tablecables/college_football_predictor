@@ -5,7 +5,13 @@ from dotenv import load_dotenv
 import pandas as pd
 import random
 import time
-from .warehouse import store_raw_data, get_last_update, fetch_raw_data
+from .warehouse import (
+    store_raw_data,
+    get_last_update,
+    fetch_raw_data,
+    store_calendar_data,
+    fetch_calendar_data
+)
 
 # Define Power 5 conferences
 POWER_5_CONFERENCES = {
@@ -164,62 +170,89 @@ def process_team_game_stats(df):
 
     return df
 
-def fetch_advanced_team_game_stats(start_year, end_year, df, max_teams=None):
-    api_instance = initialize_stats_api()
+def fetch_advanced_team_game_stats(start_year, end_year, stats_api):
+    last_season = get_last_update('advanced_team_game_stats')
     
-    all_stats = []
-    start_time = time.time()
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = last_season
     
-    # Get unique team-year combinations from df
-    team_years = df[['season', 'home_team']].rename(columns={'home_team': 'team'}).drop_duplicates()
-    team_years = pd.concat([team_years, df[['season', 'away_team']].rename(columns={'away_team': 'team'})]).drop_duplicates()
-    
-    # Filter for the specified year range
-    team_years = team_years[(team_years['season'] >= start_year) & (team_years['season'] <= end_year)]
-    
-    # If max_teams is specified, randomly sample teams
-    if max_teams:
-        unique_teams = team_years['team'].unique()
-        sampled_teams = random.sample(list(unique_teams), min(max_teams, len(unique_teams)))
-        team_years = team_years[team_years['team'].isin(sampled_teams)]
-    
-    total_teams = len(team_years)
-    for index, (_, row) in enumerate(team_years.iterrows(), 1):
-        year = row['season']
-        team = row['team']
-        try:
-            team_stats = api_instance.get_advanced_team_game_stats(
-                year=year,
-                team=team,
-                exclude_garbage_time=True,
-                season_type='regular'
-            )
-            all_stats.extend(team_stats)
-            if index % 10 == 0 or index == total_teams:
-                print(f"Progress: {index}/{total_teams} teams processed")
-        except ApiException as e:
-            print(f"Error fetching data for {team} in {year}: {e}")
+    for year in range(start_year, end_year + 1):
+        year_stats = []
+        for season_type in ['regular', 'postseason']:
+            try:
+                advanced_stats = stats_api.get_advanced_team_game_stats(
+                    year=year,
+                    exclude_garbage_time=True,
+                    season_type=season_type
+                )
+                year_stats.extend([stat.to_dict() for stat in advanced_stats])
+                print(f"Successfully fetched advanced team game stats for {year} {season_type} season")
+            except ApiException as e:
+                print(f"Exception when calling StatsApi->get_advanced_team_game_stats for year {year} {season_type} season: {e}\n")
+                print(f"Response body: {e.body}\n")
+            
+            time.sleep(1)  # Add a delay to avoid hitting rate limits
         
-        time.sleep(0.5)  # Add a small delay to avoid hitting rate limits
-    
-    end_time = time.time()
-    execution_time = end_time - start_time
-    
-    # Convert to DataFrame
-    df_stats = convert_to_dataframe(all_stats)
-    
-    return df_stats, execution_time
+        if year_stats:
+            if year == last_season:
+                # Replace data for the last season
+                store_raw_data(year_stats, 'advanced_team_game_stats', if_exists='replace')
+                print(f"Replaced advanced team game stats data for year {year}")
+            else:
+                # Append data for new years
+                store_raw_data(year_stats, 'advanced_team_game_stats', if_exists='append')
+                print(f"Appended advanced team game stats data for year {year}")
 
-def fetch_team_talent(start_year, end_year):
-    api_instance = initialize_teams_api()
+    print("Finished fetching advanced team game stats data")
+
+def fetch_team_talent(start_year, end_year, api_instance):
+    last_season = get_last_update('team_talent')
     
-    all_talent = []
+    # Ensure start_year is at least 2015
+    start_year = max(2015, start_year)
+    
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = max(2015, last_season)
+    
     for year in range(start_year, end_year + 1):
         try:
             talent = api_instance.get_talent(year=year)
-            all_talent.extend(talent)
+            talent_data = [item.to_dict() for item in talent]
+            
+            if year == last_season:
+                # Replace data for the last season
+                store_raw_data(talent_data, 'team_talent', if_exists='replace')
+                print(f"Replaced team talent data for year {year}")
+            else:
+                # Append data for new years
+                store_raw_data(talent_data, 'team_talent', if_exists='append')
+                print(f"Appended team talent data for year {year}")
+            
             print(f"Successfully fetched team talent data for {year}")
         except ApiException as e:
             print(f"Exception when calling TeamsApi->get_talent for year {year}: {e}\n")
     
-    return convert_to_dataframe(all_talent) if all_talent else None
+    print("Finished fetching team talent data")
+
+def fetch_calendar(year, games_api):
+    try:
+        calendar = games_api.get_calendar(year)
+        calendar_data = [week.to_dict() for week in calendar]
+        store_calendar_data(calendar_data, year)
+        print(f"Successfully fetched and stored calendar data for {year}")
+        return calendar_data
+    except ApiException as e:
+        print(f"Exception when calling GamesApi->get_calendar for year {year}: {e}\n")
+        return None
+
+def get_calendar(year, games_api):
+    # First, try to fetch from the database
+    calendar_data = fetch_calendar_data(year)
+    
+    # If not found in the database, fetch from the API and store
+    if calendar_data is None:
+        calendar_data = fetch_calendar(year, games_api)
+    
+    return calendar_data

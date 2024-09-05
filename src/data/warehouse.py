@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 import json
 
-DB_FILE = '../data/00_db/college_football.db'
+DB_FILE = '../data/01_raw/college_football.db'
 
 def create_connection():
     conn = None
@@ -69,6 +69,58 @@ def get_last_update(table_name):
         conn.close()
         
         return result[0] if result and result[0] is not None else None
+    else:
+        print("Error! Cannot create the database connection.")
+        return None
+
+def store_calendar_data(data, year):
+    conn = create_connection()
+    if conn is not None:
+        cursor = conn.cursor()
+        
+        # Check if the table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='calendar'")
+        table_exists = cursor.fetchone() is not None
+        
+        if not table_exists:
+            cursor.execute("CREATE TABLE calendar (year INTEGER, data JSON)")
+            print("Created table calendar")
+        
+        # Convert data to JSON string
+        json_data = json.dumps(data)
+        
+        # Insert or replace data for the given year
+        cursor.execute("INSERT OR REPLACE INTO calendar (year, data) VALUES (?, ?)", (year, json_data))
+        
+        conn.commit()
+        conn.close()
+        print(f"Calendar data for year {year} stored/updated")
+    else:
+        print("Error! Cannot create the database connection.")
+
+def fetch_calendar_data(year):
+    conn = create_connection()
+    if conn is not None:
+        cursor = conn.cursor()
+        
+        # Check if the table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='calendar'")
+        table_exists = cursor.fetchone() is not None
+        
+        if not table_exists:
+            print("Calendar table does not exist yet.")
+            conn.close()
+            return None
+        
+        cursor.execute("SELECT data FROM calendar WHERE year = ?", (year,))
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result:
+            return json.loads(result[0])
+        else:
+            print(f"No calendar data found for year {year}")
+            return None
     else:
         print("Error! Cannot create the database connection.")
         return None
