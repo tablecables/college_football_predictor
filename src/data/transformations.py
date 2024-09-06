@@ -28,6 +28,8 @@ def transform_table(conn, table_name):
     
     if table_name == 'team_game_stats':
         return transform_team_game_stats(json_data)
+    elif table_name == 'betting_lines':
+        return transform_betting_lines(json_data)
     
     df = json_to_dataframe(json_data)
     return df
@@ -52,6 +54,28 @@ def transform_team_game_stats(json_data):
             print(f"Error processing game data: {e}")
             print(f"Problematic game data: {game}")
     return pd.DataFrame(rows)
+
+def transform_betting_lines(json_data):
+    rows = []
+    line_columns = ['provider', 'spread', 'formatted_spread', 'spread_open', 'over_under', 
+                    'over_under_open', 'home_moneyline', 'away_moneyline']
+    
+    for game in json_data:
+        base_row = {k: v for k, v in game.items() if k != 'lines'}
+        
+        # Add null values for all line columns as the base case
+        for col in line_columns:
+            base_row[f'line_{col}'] = None
+        
+        if 'lines' in game and isinstance(game['lines'], list) and game['lines']:
+            for line in game['lines']:
+                row = base_row.copy()
+                for col in line_columns:
+                    row[f'line_{col}'] = line.get(col, None)
+                rows.append(row)
+    
+    return pd.DataFrame(rows)
+
 
 def save_to_new_db(df, table_name, new_conn):
     if not isinstance(df, pd.DataFrame):

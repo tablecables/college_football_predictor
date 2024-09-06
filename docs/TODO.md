@@ -2,6 +2,9 @@
 
 ## Current Action(s)
 -   [x] Need to pull 2024 schedule separately, only pulls complete games
+-   [ ] Why did ratings only get 2024?
+-   [ ] Expand team_game_stats
+-   [ ] Remove calendar (useless)
 -   [ ] Feature selection
     -   [ ] **Fixing rolling averages and sums so that we fill the NaN**
         -   Exclude current game, season "so far", etc.
