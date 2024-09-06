@@ -1,10 +1,8 @@
 # TODO
 
 ## Current Action(s)
--   [x] Need to pull 2024 schedule separately, only pulls complete games
--   [ ] Why did ratings only get 2024?
--   [ ] Expand team_game_stats
--   [ ] Remove calendar (useless)
+-   [ ] Update cleaning with db setup
+-   [ ] Update feature engineering with db setup
 -   [ ] Feature selection
     -   [ ] **Fixing rolling averages and sums so that we fill the NaN**
         -   Exclude current game, season "so far", etc.
@@ -12,6 +10,7 @@
     -   [ ] cleanup categoircal and initial nans
     -   [ ] outlier and normalize
     -   [ ] matchup feature
+-   [ ] Remove old parquet files
 
 
 ## Action Items
@@ -26,6 +25,11 @@
 -   [x] Team talent composite
 -   [x] Pull 2001-2024 data
 -   [x] 2024 schedule for prediction (check pac-12)
+-   [x] Need to pull 2024 schedule separately, only pulls complete games
+-   [x] Why did ratings only get 2024?
+-   [x] Expand team_game_stats
+-   [x] Expand betting lines
+-   [x] Remove calendar (useless)
 -   [ ] Pull team rosters and season player stats
 -   [ ] Figure out where the duplicates are coming from, currently fixed in cleaning
 -   [ ] Get coaches
