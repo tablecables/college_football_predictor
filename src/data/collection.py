@@ -267,15 +267,20 @@ def fetch_calendar(year, games_api):
         print(f"Exception when calling GamesApi->get_calendar for year {year}: {e}\n")
         return None
 
-def get_calendar(year, games_api):
-    # First, try to fetch from the database
-    calendar_data = fetch_calendar_data(year)
+def get_calendar(start_year, end_year, games_api):
+    all_calendar_data = []
+    for year in range(start_year, end_year + 1):
+        # First, try to fetch from the database
+        calendar_data = fetch_calendar_data(year)
+        
+        # If not found in the database, fetch from the API and store
+        if calendar_data is None:
+            calendar_data = fetch_calendar(year, games_api)
+        
+        if calendar_data:
+            all_calendar_data.extend(calendar_data)
     
-    # If not found in the database, fetch from the API and store
-    if calendar_data is None:
-        calendar_data = fetch_calendar(year, games_api)
-    
-    return calendar_data
+    return all_calendar_data
 
 def fetch_ratings(start_year, end_year, ratings_api, rating_type):
     all_data = []
