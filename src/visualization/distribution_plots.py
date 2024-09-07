@@ -100,7 +100,7 @@ def plot_null_frequency_by_season(df, columns_to_analyze):
     None
     """
     def null_frequency_by_season(df, column):
-        return df.groupby('season')[column].apply(lambda x: x.isnull().sum()) / df.groupby('season').size() * 100
+        return df.groupby('year')[column].apply(lambda x: x.isnull().sum()) / df.groupby('year').size() * 100
 
     for column in columns_to_analyze:
         null_freq = null_frequency_by_season(df, column)
@@ -126,7 +126,7 @@ def plot_zero_values_by_year(df, column_name):
     None
     """
     # Calculate percentage of zero values by year
-    zero_values_by_year = df[df[column_name] == 0].groupby('season').size() / df.groupby('season').size() * 100
+    zero_values_by_year = df[df[column_name] == 0].groupby('year').size() / df.groupby('year').size() * 100
 
     # Plot percentage of zero values by year
     plt.figure(figsize=(12, 6))

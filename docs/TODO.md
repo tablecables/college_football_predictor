@@ -1,7 +1,12 @@
 # TODO
 
 ## Current Action(s)
--   [ ] Update cleaning with db setup
+-   [ ] Fix transformation errors
+    -   [ ] Find how excitement index and attendance dissappeared
+    -   [x] Fix pregame win probabilities - low sample
+    -   [x] Fix talent - cutoff year
+    -   [x] Betting - cutoff year
+-   [ ] **Update cleaning with db setup --> script to SQL**
 -   [ ] Update feature engineering with db setup
 -   [ ] Feature selection
     -   [ ] **Fixing rolling averages and sums so that we fill the NaN**

@@ -2,6 +2,7 @@
 
 import sqlite3
 import os
+import pandas as pd
 
 def create_transformed_teams_db(source_db_path, target_db_path):
     # Connect to the source database
@@ -272,6 +273,13 @@ def create_transformed_teams_db(source_db_path, target_db_path):
         tt.talent AS team_talent,
         tt_opponent.talent AS opponent_talent
 
+        -- Result --
+        CASE
+            WHEN cgd.team_points > cgd.opponent_points THEN 1
+            WHEN cgd.team_points < cgd.opponent_points THEN 0
+            ELSE 0.5
+        END AS win,
+
     FROM combined_game_data cgd
     LEFT JOIN team_game_stats_deduped tgs
         ON cgd.id = tgs.id AND cgd.team = tgs.team
@@ -328,3 +336,31 @@ if __name__ == "__main__":
     target_db_path = os.path.join(project_root, 'data', '02_interim', 'transformed_teams.db')
     
     create_transformed_teams_db(source_db_path, target_db_path)
+
+def load_transformed_teams_df(db_path):
+    """
+    Load the transformed_teams table from the SQLite database into a pandas DataFrame.
+
+    Args:
+    db_path (str): Path to the SQLite database file.
+
+    Returns:
+    pandas.DataFrame: DataFrame containing the transformed_teams data.
+    """
+    conn = sqlite3.connect(db_path)
+    query = "SELECT * FROM transformed_teams"
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    return df
+
+if __name__ == "__main__":
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    source_db_path = os.path.join(project_root, 'data', '02_interim', 'college_football.db')
+    target_db_path = os.path.join(project_root, 'data', '02_interim', 'transformed_teams.db')
+    
+    create_transformed_teams_db(source_db_path, target_db_path)
+    
+    # Load the transformed_teams data into a DataFrame
+    transformed_teams_df = load_transformed_teams_df(target_db_path)
+    print(f"Loaded transformed_teams data. Shape: {transformed_teams_df.shape}")
+    print(transformed_teams_df.head())
