@@ -271,14 +271,14 @@ def create_transformed_teams_db(source_db_path, target_db_path):
         
         -- Team Talent --
         tt.talent AS team_talent,
-        tt_opponent.talent AS opponent_talent
+        tt_opponent.talent AS opponent_talent,
 
         -- Result --
         CASE
             WHEN cgd.team_points > cgd.opponent_points THEN 1
             WHEN cgd.team_points < cgd.opponent_points THEN 0
             ELSE 0.5
-        END AS win,
+        END AS win
 
     FROM combined_game_data cgd
     LEFT JOIN team_game_stats_deduped tgs
@@ -303,6 +303,8 @@ def create_transformed_teams_db(source_db_path, target_db_path):
         ON cgd.year = tt.year AND cgd.team = tt.school
     LEFT JOIN team_talent_deduped tt_opponent
         ON cgd.year = tt_opponent.year AND cgd.opponent = tt_opponent.school
+    
+    WHERE cgd.year >= 2004
     """
 
     # Execute the query and fetch results
@@ -311,6 +313,149 @@ def create_transformed_teams_db(source_db_path, target_db_path):
 
     # Get column names
     column_names = [description[0] for description in source_cursor.description]
+
+    # Define data types for columns
+    column_types = {
+        'id': 'INTEGER',
+        'year': 'INTEGER',
+        'week': 'INTEGER',
+        'season_type': 'TEXT',
+        'start_date': 'DATETIME',
+        'completed': 'BOOLEAN',
+        'neutral_site': 'BOOLEAN',
+        'conference_game': 'BOOLEAN',
+        'attendance': 'INTEGER',
+        'venue_id': 'INTEGER',
+        'venue': 'TEXT',
+        'team': 'TEXT',
+        'opponent': 'TEXT',
+        'team_conference': 'TEXT',
+        'opponent_conference': 'TEXT',
+        'team_division': 'TEXT',
+        'opponent_division': 'TEXT',
+        'team_points': 'INTEGER',
+        'opponent_points': 'INTEGER',
+        'team_line_scores': 'TEXT', #! breakout?
+        'opponent_line_scores': 'TEXT', #! breakout?
+        'team_post_win_prob': 'REAL',
+        'opponent_post_win_prob': 'REAL',
+        'excitement_index': 'REAL',
+        'team_pregame_elo': 'INTEGER',
+        'opponent_pregame_elo': 'INTEGER',
+        'team_postgame_elo': 'INTEGER',
+        'opponent_postgame_elo': 'INTEGER',
+        'home_away': 'TEXT',
+        #! team_id null a lot, starts in 2004
+        'team_id': 'INTEGER',
+        'fumblesRecovered': 'INTEGER',
+        'rushingTDs': 'INTEGER',
+        'puntReturnYards': 'INTEGER',
+        'puntReturnTDs': 'INTEGER',
+        'puntReturns': 'INTEGER',
+        'passingTDs': 'INTEGER',
+        'kickingPoints': 'INTEGER',
+        'firstDowns': 'INTEGER',
+        'thirdDownEff': 'TEXT',
+        'fourthDownEff': 'TEXT',
+        'totalYards': 'INTEGER',
+        'netPassingYards': 'INTEGER',
+        'completionAttempts': 'TEXT',
+        'yardsPerPass': 'REAL',
+        'rushingYards': 'INTEGER',
+        'rushingAttempts': 'INTEGER',
+        'yardsPerRushAttempt': 'REAL',
+        'totalPenaltiesYards': 'TEXT',
+        'turnovers': 'INTEGER',
+        'fumblesLost': 'INTEGER',
+        'interceptions': 'INTEGER',
+        'possessionTime': 'TEXT',
+        'interceptionYards': 'INTEGER',
+        'interceptionTDs': 'INTEGER',
+        'passesIntercepted': 'INTEGER',
+        'kickReturnYards': 'INTEGER',
+        'kickReturnTDs': 'INTEGER',
+        'kickReturns': 'INTEGER',
+        'totalFumbles': 'INTEGER',
+        'tacklesForLoss': 'INTEGER',
+        'defensiveTDs': 'INTEGER',
+        'tackles': 'INTEGER',
+        'sacks': 'INTEGER',
+        'qbHurries': 'INTEGER',
+        'passesDeflected': 'INTEGER',
+        'offense_plays': 'INTEGER',
+        'offense_drives': 'INTEGER',
+        'offense_ppa': 'REAL',
+        'offense_total_ppa': 'REAL',
+        'offense_success_rate': 'REAL',
+        'offense_explosiveness': 'REAL',
+        'offense_power_success': 'REAL',
+        'offense_stuff_rate': 'REAL',
+        'offense_line_yards': 'REAL',
+        'offense_line_yards_total': 'REAL',
+        'offense_second_level_yards': 'REAL',
+        'offense_second_level_yards_total': 'REAL',
+        'offense_open_field_yards': 'REAL',
+        'offense_open_field_yards_total': 'REAL',
+        'offense_standard_downs_ppa': 'REAL',
+        'offense_standard_downs_success_rate': 'REAL',
+        'offense_standard_downs_explosiveness': 'REAL',
+        'offense_passing_downs_ppa': 'REAL',
+        'offense_passing_downs_success_rate': 'REAL',
+        'offense_passing_downs_explosiveness': 'REAL',
+        'offense_rushing_plays_ppa': 'REAL',
+        'offense_rushing_plays_total_ppa': 'REAL',
+        'offense_rushing_plays_success_rate': 'REAL',
+        'offense_rushing_plays_explosiveness': 'REAL',
+        'offense_passing_plays_ppa': 'REAL',
+        'offense_passing_plays_total_ppa': 'REAL',
+        'offense_passing_plays_success_rate': 'REAL',
+        'offense_passing_plays_explosiveness': 'REAL',
+        'defense_plays': 'INTEGER',
+        'defense_drives': 'INTEGER',
+        'defense_ppa': 'REAL',
+        'defense_total_ppa': 'REAL',
+        'defense_success_rate': 'REAL',
+        'defense_explosiveness': 'REAL',
+        'defense_power_success': 'REAL',
+        'defense_stuff_rate': 'REAL',
+        'defense_line_yards': 'REAL',
+        'defense_line_yards_total': 'REAL',
+        'defense_second_level_yards': 'REAL',
+        'defense_second_level_yards_total': 'REAL',
+        'defense_open_field_yards': 'REAL',
+        'defense_open_field_yards_total': 'REAL',
+        'defense_standard_downs_ppa': 'REAL',
+        'defense_standard_downs_success_rate': 'REAL',
+        'defense_standard_downs_explosiveness': 'REAL',
+        'defense_passing_downs_ppa': 'REAL',
+        'defense_passing_downs_success_rate': 'REAL',
+        'defense_passing_downs_explosiveness': 'REAL',
+        'defense_rushing_plays_ppa': 'REAL',
+        'defense_rushing_plays_total_ppa': 'REAL',
+        'defense_rushing_plays_success_rate': 'REAL',
+        'defense_rushing_plays_explosiveness': 'REAL',
+        'defense_passing_plays_ppa': 'REAL',
+        'defense_passing_plays_total_ppa': 'REAL',
+        'defense_passing_plays_success_rate': 'REAL',
+        'defense_passing_plays_explosiveness': 'REAL',
+        'avg_line_spread': 'REAL',
+        'avg_line_spread_open': 'REAL',
+        'avg_line_over_under': 'REAL',
+        'avg_line_over_under_open': 'REAL',
+        'avg_line_team_moneyline': 'REAL',
+        'avg_line_opponent_moneyline': 'REAL',
+        'team_elo_rating': 'REAL',
+        'opponent_elo_rating': 'REAL',
+        'team_pregame_win_prob': 'REAL',
+        'opponent_pregame_win_prob': 'REAL',
+        'team_recruiting_rank': 'INTEGER',
+        'team_recruiting_points': 'INTEGER',
+        'opponent_recruiting_rank': 'INTEGER',
+        'opponent_recruiting_points': 'INTEGER',
+        'team_talent': 'REAL',
+        'opponent_talent': 'REAL',
+        'win': 'INTEGER'
+    }
 
     # Drop the existing table if it exists
     target_cursor.execute("DROP TABLE IF EXISTS transformed_teams")
