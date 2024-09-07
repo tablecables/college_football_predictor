@@ -14,52 +14,136 @@ def create_transformed_teams_db(source_db_path, target_db_path):
 
     # Your SQL query
     query = """
+
+    WITH games_deduped AS (
+        SELECT DISTINCT *
+        FROM games
+    ),
+    team_game_stats_deduped AS (
+        SELECT DISTINCT *,
+            school AS team  -- Rename 'school' to 'team'
+        FROM team_game_stats
+    ),
+    team_talent_deduped AS (
+        SELECT DISTINCT *
+        FROM team_talent
+    ),
+    home_team_data AS (
+        SELECT
+            id,
+            season,
+            week,
+            season_type,
+            start_date,
+            completed,
+            neutral_site,
+            conference_game,
+            attendance,
+            venue_id,
+            venue,
+            home_team AS team,
+            away_team AS opponent,
+            home_conference AS team_conference,
+            away_conference AS opponent_conference,
+            home_division AS team_division,
+            away_division AS opponent_division,
+            home_points AS team_points,
+            away_points AS opponent_points,
+            home_line_scores AS team_line_scores,
+            away_line_scores AS opponent_line_scores,
+            home_post_win_prob AS team_post_win_prob,
+            away_post_win_prob AS opponent_post_win_prob,
+            excitement_index,
+            home_pregame_elo AS team_pregame_elo,
+            away_pregame_elo AS opponent_pregame_elo,
+            home_postgame_elo AS team_postgame_elo,
+            away_postgame_elo AS opponent_postgame_elo,
+            'home' AS home_away
+        FROM games_deduped
+    ),
+    away_team_data AS (
+        SELECT 
+            id,
+            season,
+            week,
+            season_type,
+            start_date,
+            completed,
+            neutral_site,
+            conference_game,
+            attendance,
+            venue_id,
+            venue,
+            away_team AS team,
+            home_team AS opponent,
+            away_conference AS team_conference,
+            home_conference AS opponent_conference,
+            away_division AS team_division,
+            home_division AS opponent_division,
+            away_points AS team_points,
+            home_points AS opponent_points,
+            away_line_scores AS team_line_scores,
+            home_line_scores AS opponent_line_scores,
+            away_post_win_prob AS team_post_win_prob,
+            home_post_win_prob AS opponent_post_win_prob,
+            excitement_index,
+            away_pregame_elo AS team_pregame_elo,
+            home_pregame_elo AS opponent_pregame_elo,
+            away_postgame_elo AS team_postgame_elo,
+            home_postgame_elo AS opponent_postgame_elo,
+            'away' AS home_away
+        FROM games_deduped
+    ),
+    combined_game_data AS (
+        SELECT * FROM home_team_data
+        UNION ALL
+        SELECT * FROM away_team_data
+    )
+
     SELECT 
-        tgs.*,
-        -- Add columns from advanced_stats
-        adv.offense_explosiveness,
-        adv.offense_stuff_rate,
-        adv.offense_line_yards,
-        adv.offense_second_level_yards,
-        adv.offense_open_field_yards,
-        -- Add more columns as needed
-        g.season,
-        g.week,
-        g.season_type,
-        g.start_date,
-        g.neutral_site,
-        g.conference_game,
-        g.attendance,
-        g.venue_id,
-        g.venue,
-        g.home_team,
-        g.away_team,
-        g.home_conference,
-        g.away_conference,
-        g.home_points,
-        g.away_points,
-        g.excitement_index,
-        -- Add more joins and columns as needed
-        CASE 
-            WHEN tgs.school = g.home_team THEN g.away_team
-            ELSE g.home_team
-        END AS opponent,
-        CASE 
-            WHEN tgs.school = g.home_team THEN g.away_conference
-            ELSE g.home_conference
-        END AS opponent_conference,
-        CASE 
-            WHEN tgs.school = g.home_team THEN g.away_points
-            ELSE g.home_points
-        END AS opponent_points,
-        CASE 
-            WHEN tgs.school = g.home_team THEN 1
-            ELSE 0
-        END AS is_home
-    FROM team_game_stats tgs
-    LEFT JOIN advanced_team_game_stats adv ON tgs.id = adv.game_id AND tgs.school = adv.team
-    LEFT JOIN games g ON tgs.id = g.id
-    -- Add more LEFT JOINs here for additional tables
+        cgd.*,
+        tgs.school_id as team_id,
+        tgs.fumblesRecovered,
+        tgs.rushingTDs,
+        tgs.puntReturnYards,
+        tgs.puntReturnTDs,
+        tgs.puntReturns,
+        tgs.passingTDs,
+        tgs.kickingPoints,
+        tgs.firstDowns,
+        tgs.thirdDownEff,
+        tgs.fourthDownEff,
+        tgs.totalYards,
+        tgs.netPassingYards,
+        tgs.completionAttempts,
+        tgs.yardsPerPass,
+        tgs.rushingYards,
+        tgs.rushingAttempts,
+        tgs.yardsPerRushAttempt,
+        tgs.totalPenaltiesYards,
+        tgs.turnovers,
+        tgs.fumblesLost,
+        tgs.interceptions,
+        tgs.possessionTime,
+        tgs.interceptionYards,
+        tgs.interceptionTDs,
+        tgs.passesIntercepted,
+        tgs.kickReturnYards,
+        tgs.kickReturnTDs,
+        tgs.kickReturns,
+        tgs.totalFumbles,
+        tgs.tacklesForLoss,
+        tgs.defensiveTDs,
+        tgs.tackles,
+        tgs.sacks,
+        tgs.qbHurries,
+        tgs.passesDeflected
+    FROM combined_game_data cgd
+    LEFT JOIN team_game_stats_deduped tgs
+        ON cgd.id = tgs.id AND cgd.team = tgs.team
+    LEFT JOIN advanced_team_game_stats adv
+        ON cgd.id = adv.game_id AND cgd.team = adv.team
+
     """
 
     # Execute the query and fetch results
@@ -69,8 +153,11 @@ def create_transformed_teams_db(source_db_path, target_db_path):
     # Get column names
     column_names = [description[0] for description in source_cursor.description]
 
+    # Drop the existing table if it exists
+    target_cursor.execute("DROP TABLE IF EXISTS transformed_teams")
+
     # Create the table in the target database
-    create_table_query = f"CREATE TABLE IF NOT EXISTS transformed_teams ({', '.join(column_names)})"
+    create_table_query = f"CREATE TABLE transformed_teams ({', '.join(column_names)})"
     target_cursor.execute(create_table_query)
 
     # Insert the data into the target database
