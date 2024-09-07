@@ -90,13 +90,21 @@ def save_to_new_db(df, table_name, new_conn):
     # Replace any characters that might cause SQL syntax errors
     df.columns = [str(col).replace(".", "_").replace("[", "_").replace("]", "_") for col in df.columns]
     
-    # Ensure all data is stored as text
-    for col in df.columns:
-        df[col] = df[col].astype(str)
+    # Create a dictionary to map pandas dtypes to SQLite types
+    dtype_map = {
+        'int64': 'INTEGER',
+        'float64': 'REAL',
+        'bool': 'INTEGER',
+        'datetime64[ns]': 'TEXT',
+        'object': 'TEXT'
+    }
+    
+    # Create a dictionary of column names and their SQLite types
+    column_types = {col: dtype_map.get(str(df[col].dtype), 'TEXT') for col in df.columns}
     
     # Use a try-except block to catch and print any errors
     try:
-        df.to_sql(table_name, new_conn, if_exists='replace', index=False)
+        df.to_sql(table_name, new_conn, if_exists='replace', index=False, dtype=column_types)
     except Exception as e:
         print(f"Error saving table {table_name}: {str(e)}")
         print(f"Problematic columns: {df.columns.tolist()}")

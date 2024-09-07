@@ -1,23 +1,21 @@
 # TODO
 
 ## Current Action(s)
--   [ ] Fix transformation errors
-    -   [ ] **Data types**
-        -   warehouse, transformations --> lost somewhere early on
-    -   [ ] Find how excitement index and attendance dissappeared
-    -   [x] Fix pregame win probabilities - low sample
-    -   [x] Fix talent - cutoff year
-    -   [x] Betting - cutoff year
 -   [ ] **Update cleaning with db setup --> script to SQL**
+    -   [ ] Document the time ranges and completeness of each dataset
+    -   [ ] For null years, determine if they can be inferred from other data points (mean, median, mode)
+    -   [ ] Then go feature engineering followed by: Segment your data based on time ranges
+
 -   [ ] Update feature engineering with db setup
+
 -   [ ] Feature selection
-    -   [ ] **Fixing rolling averages and sums so that we fill the NaN**
+    -   [ ] Fixing rolling averages and sums so that we fill the NaN
         -   Exclude current game, season "so far", etc.
     -   [x] win rate still broken, too long
     -   [ ] cleanup categoircal and initial nans
     -   [ ] outlier and normalize
     -   [ ] matchup feature
--   [ ] Remove old parquet files
+-   [ ] Remove old parquet files, .py files, and unused functions
 
 
 ## Action Items
@@ -37,6 +35,13 @@
 -   [x] Expand team_game_stats
 -   [x] Expand betting lines
 -   [x] Remove calendar (useless)
+-   [x] Fix transformation errors
+    -   [x] **Data types**
+        -   warehouse, transformations --> lost somewhere early on
+    -   [x] Find how excitement index and attendance dissappeared
+    -   [x] Fix pregame win probabilities - low sample
+    -   [x] Fix talent - cutoff year
+    -   [x] Betting - cutoff year
 -   [ ] Pull team rosters and season player stats
 -   [ ] Figure out where the duplicates are coming from, currently fixed in cleaning
 -   [ ] Get coaches
