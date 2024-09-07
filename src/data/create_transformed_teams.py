@@ -460,8 +460,8 @@ def create_transformed_teams_db(source_db_path, target_db_path):
     # Drop the existing table if it exists
     target_cursor.execute("DROP TABLE IF EXISTS transformed_teams")
 
-    # Create the table in the target database
-    create_table_query = f"CREATE TABLE transformed_teams ({', '.join(column_names)})"
+    # Create the table in the target database with specified data types
+    create_table_query = f"CREATE TABLE transformed_teams ({', '.join([f'{name} {column_types.get(name, 'TEXT')}' for name in column_names])})"
     target_cursor.execute(create_table_query)
 
     # Insert the data into the target database

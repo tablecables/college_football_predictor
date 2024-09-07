@@ -2,6 +2,8 @@
 
 ## Current Action(s)
 -   [ ] Fix transformation errors
+    -   [ ] **Data types**
+        -   warehouse, transformations --> lost somewhere early on
     -   [ ] Find how excitement index and attendance dissappeared
     -   [x] Fix pregame win probabilities - low sample
     -   [x] Fix talent - cutoff year
