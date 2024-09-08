@@ -13,7 +13,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
     target_conn = sqlite3.connect(target_db_path)
     target_cursor = target_conn.cursor()
 
-    # Your SQL query
+    # SQL query
     query = """
 
     WITH games_deduped AS (
@@ -44,6 +44,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
             venue,
             home_team AS team,
             away_team AS opponent,
+            away_id AS opponent_id,
             home_conference AS team_conference,
             away_conference AS opponent_conference,
             home_division AS team_division,
@@ -77,6 +78,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
             venue,
             away_team AS team,
             home_team AS opponent,
+            home_id AS opponent_id,
             away_conference AS team_conference,
             home_conference AS opponent_conference,
             away_division AS team_division,
