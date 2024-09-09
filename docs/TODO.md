@@ -1,12 +1,9 @@
 # TODO
 
 ## Current Action(s)
--   [ ] **Update cleaning with db setup --> script to SQL**
-    -   [ ] Document the time ranges and completeness of each dataset
-    -   [ ] For null years, determine if they can be inferred from other data points (mean, median, mode)
-    -   [ ] Then go feature engineering followed by: Segment your data based on time ranges
 
--   [ ] Update feature engineering with db setup
+-   [ ] **Update feature engineering with db setup**
+    -   [ ] Loosing track of this, let's start from the top
 
 -   [ ] Feature selection
     -   [ ] Fixing rolling averages and sums so that we fill the NaN
@@ -68,6 +65,10 @@
 -   [x] duplicates to remove: team and team_name
 -   [x] Update boolean values
 -   [x] convert possessionTime to numeric
+-   [x] Update cleaning with db setup --> script to SQL
+    -   [x] Document the time ranges and completeness of each dataset
+    -   [x] For null years, determine if they can be inferred from other data points (mean, median, mode)
+    -   [x] Then go feature engineering followed by: Segment your data based on time ranges
 -   [ ] Revisit why we had null advanced stats for 2.5%, currently filtered out in data_cleaning
 -   [ ] Handle Outliers?
 
