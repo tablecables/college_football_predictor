@@ -43,6 +43,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
             venue_id,
             venue,
             home_team AS team,
+            home_id AS team_id,
             away_team AS opponent,
             away_id AS opponent_id,
             home_conference AS team_conference,
@@ -77,6 +78,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
             venue_id,
             venue,
             away_team AS team,
+            away_id AS team_id,
             home_team AS opponent,
             home_id AS opponent_id,
             away_conference AS team_conference,
@@ -134,7 +136,6 @@ def create_transformed_teams_db(source_db_path, target_db_path):
         cgd.*,
         
         -- Team Game Stats --
-        tgs.school_id as team_id,
         tgs.fumblesRecovered,
         tgs.rushingTDs,
         tgs.puntReturnYards,
@@ -284,7 +285,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
 
     FROM combined_game_data cgd
     LEFT JOIN team_game_stats_deduped tgs
-        ON cgd.id = tgs.id AND cgd.team = tgs.team
+        ON cgd.id = tgs.id AND cgd.team_id = tgs.school_id
     LEFT JOIN advanced_team_game_stats adv
         ON cgd.id = adv.game_id AND cgd.team = adv.team
     LEFT JOIN home_betting_lines hbl

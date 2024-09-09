@@ -22,8 +22,21 @@ def create_processed_teams_db(source_db_path, target_db_path):
 
     # SQL query to clean and process the data
     clean_data_query = """
-    WITH cleaned_data AS (
-        SELECT *,
+    WITH team_info AS (
+        SELECT team, 
+               MAX(team_conference) AS team_conference, 
+               MAX(team_division) AS team_division
+        FROM transformed_teams
+        WHERE team_conference IS NOT NULL AND team_conference != ''
+          AND team_division IS NOT NULL AND team_division != ''
+        GROUP BY team
+    ),
+    cleaned_data AS (
+        SELECT t.*,
+            COALESCE(t.team_conference, ti.team_conference, 'Unknown') AS team_conference,
+            COALESCE(t.team_division, ti.team_division, 'Unknown') AS team_division,
+            COALESCE(t.opponent_conference, oi.team_conference, 'Unknown') AS opponent_conference,
+            COALESCE(t.opponent_division, oi.team_division, 'Unknown') AS opponent_division,
             CASE 
                 WHEN attendance = 0 THEN NULL
                 ELSE attendance
@@ -43,10 +56,24 @@ def create_processed_teams_db(source_db_path, target_db_path):
                 CAST(SUBSTR(completionAttempts, INSTR(completionAttempts, '-') + 1) AS FLOAT) AS completionPct,
             CAST(SUBSTR(totalPenaltiesYards, 1, INSTR(totalPenaltiesYards, '-') - 1) AS INTEGER) AS penalties,
             CAST(SUBSTR(totalPenaltiesYards, INSTR(totalPenaltiesYards, '-') + 1) AS INTEGER) AS penaltyYards
-        FROM transformed_teams
+        FROM transformed_teams t
+        LEFT JOIN team_info ti ON t.team = ti.team
+        LEFT JOIN team_info oi ON t.opponent = oi.team
+    ),
+    yearly_avg_excitement AS (
+    SELECT year, AVG(excitement_index) AS avg_excitement
+    FROM cleaned_data
+    WHERE excitement_index IS NOT NULL
+        GROUP BY year
     )
     SELECT 
-        id, year, week, season_type, start_date, neutral_site, conference_game,
+        id, year, week, season_type, start_date, neutral_site,
+        COALESCE(conference_game, 
+            CASE 
+                WHEN team_conference = opponent_conference THEN 1
+                ELSE 0
+            END
+        ) AS conference_game,
         COALESCE(cleaned_attendance, 
             (SELECT AVG(cleaned_attendance) FROM cleaned_data c2 
              WHERE c2.year = cleaned_data.year AND c2.venue_id = cleaned_data.venue_id),
@@ -60,7 +87,13 @@ def create_processed_teams_db(source_db_path, target_db_path):
         team_id, team, team_conference, team_division, team_points,
         opponent_id, opponent, opponent_conference, opponent_division, opponent_points,
         CAST(home_away = 'home' AS INTEGER) AS is_home,
-        excitement_index,
+        CASE 
+        WHEN year > 2013 AND start_date < DATE('now') AND excitement_index IS NULL THEN 
+            (SELECT avg_excitement 
+             FROM yearly_avg_excitement y 
+             WHERE y.year = cleaned_data.year)
+            ELSE excitement_index
+        END AS excitement_index,
         COALESCE(fumblesLost, 0) + COALESCE(fumblesRecovered, 0) AS totalFumbles,
         COALESCE(puntReturnYards, 0) AS puntReturnYards,
         COALESCE(puntReturnTDs, 0) AS puntReturnTDs,
@@ -71,13 +104,48 @@ def create_processed_teams_db(source_db_path, target_db_path):
         COALESCE(passesIntercepted, 0) AS passesIntercepted,
         COALESCE(passingTDs, 0) AS passingTDs,
         COALESCE(rushingTDs, 0) AS rushingTDs,
+        COALESCE(penalties, 0) AS penalties,
+        COALESCE(penaltyYards, 0) AS penaltyYards,
         COALESCE(possession_time_minutes, 
             (SELECT AVG(possession_time_minutes) FROM cleaned_data c2 
              WHERE c2.year = cleaned_data.year AND c2.team = cleaned_data.team),
             (SELECT AVG(possession_time_minutes) FROM cleaned_data)
         ) AS possessionMinutes,
-        thirdDownPct, fourthDownPct, completionPct, penalties, penaltyYards,
-        team_talent, opponent_talent,
+        COALESCE(thirdDownPct, 
+            (SELECT AVG(thirdDownPct) FROM cleaned_data c2 
+             WHERE c2.year = cleaned_data.year)) AS thirdDownPct,
+        COALESCE(fourthDownPct, 
+            (SELECT AVG(fourthDownPct) FROM cleaned_data c2 
+             WHERE c2.year = cleaned_data.year)) AS fourthDownPct,
+        COALESCE(completionPct, 
+            (SELECT AVG(completionPct) FROM cleaned_data c2 
+             WHERE c2.year = cleaned_data.year)) AS completionPct,
+        CASE 
+            WHEN year < 2015 THEN NULL
+            ELSE COALESCE(
+                team_talent,
+                (SELECT AVG(c2.team_talent) FROM cleaned_data c2 
+                 WHERE c2.year = cleaned_data.year 
+                 AND c2.team_conference = cleaned_data.team_conference
+                 AND c2.team_talent IS NOT NULL),
+                (SELECT AVG(c3.team_talent) FROM cleaned_data c3 
+                 WHERE c3.year = cleaned_data.year
+                 AND c3.team_talent IS NOT NULL)
+            )
+        END AS team_talent,
+        CASE 
+            WHEN year < 2015 THEN NULL
+            ELSE COALESCE(
+                opponent_talent,
+                (SELECT AVG(c2.team_talent) FROM cleaned_data c2 
+                 WHERE c2.year = cleaned_data.year 
+                 AND c2.team_conference = cleaned_data.opponent_conference
+                 AND c2.team_talent IS NOT NULL),
+                (SELECT AVG(c3.team_talent) FROM cleaned_data c3 
+                 WHERE c3.year = cleaned_data.year
+                 AND c3.team_talent IS NOT NULL)
+            )
+        END AS opponent_talent,
         team_points - opponent_points AS point_difference,
         CASE 
             WHEN team_points > opponent_points THEN 'win'
