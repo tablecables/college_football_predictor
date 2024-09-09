@@ -716,11 +716,13 @@ def create_processed_teams_db(source_db_path, target_db_path):
         END AS opponent_talent,
         team_points - opponent_points AS point_difference,
         CASE 
+            WHEN completed = 0 THEN NULL
             WHEN team_points > opponent_points THEN 'win'
             WHEN team_points < opponent_points THEN 'loss'
             ELSE 'tie'
         END AS result,
         CASE 
+            WHEN completed = 0 THEN NULL
             WHEN team_points > opponent_points THEN 1
             WHEN team_points = opponent_points THEN 0.5
             ELSE 0

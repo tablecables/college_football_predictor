@@ -3,7 +3,8 @@
 ## Current Action(s)
 
 -   [ ] **Update feature engineering with db setup**
-    -   [ ] Loosing track of this, let's start from the top
+    -   [x] Loosing track of this, let's start from the top
+    -   [ ] Fix and add back weighted function
 
 -   [ ] Feature selection
     -   [ ] Fixing rolling averages and sums so that we fill the NaN

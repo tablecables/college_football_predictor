@@ -123,3 +123,4 @@ def calculate_season_point_differential(data):
 
 def calculate_cumulative_season_point_differential(data):
     return data.groupby(['team_id', 'season'])['point_difference'].transform(lambda x: x.shift().cumsum())
+
