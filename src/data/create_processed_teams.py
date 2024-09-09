@@ -185,6 +185,31 @@ def create_processed_teams_db(source_db_path, target_db_path):
             ELSE yardsPerPass
         END AS yardsPerPass,
         CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(rushingYards, 0)
+            ELSE rushingYards
+        END AS rushingYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(rushingAttempts, 0)
+            ELSE rushingAttempts
+        END AS rushingAttempts,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(yardsPerRushAttempt, 0)
+            ELSE yardsPerRushAttempt
+        END AS yardsPerRushAttempt,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(turnovers, 0)
+            ELSE turnovers
+        END AS turnovers,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(interceptions, 0)
+            ELSE interceptions
+        END AS interceptions,
+        CASE
             WHEN year >= 2009 AND completed = 1
             THEN COALESCE(kickReturnYards, 0)
             ELSE kickReturnYards

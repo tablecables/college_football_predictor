@@ -9,8 +9,8 @@ RAW_FEATURES = [
         "description": "Number of first downs achieved"
     },
     {
-        "name": "possessionTime",
-        "description": "Time of possession in seconds"
+        "name": "possessionMinutes",
+        "description": "Time of possession in minutes"
     },
     {
         "name": "thirdDownPct",
@@ -191,115 +191,115 @@ RAW_FEATURES = [
         "description": "Total Predicted Points Added allowed for all defensive plays"
     },
     {
-        "name": "offense_passing_downs.explosiveness",
+        "name": "offense_passing_downs_explosiveness",
         "description": "Explosiveness of offensive plays on passing downs"
     },
     {
-        "name": "defense_passing_downs.explosiveness",
+        "name": "defense_passing_downs_explosiveness",
         "description": "Explosiveness allowed on plays during passing downs"
     },
     {
-        "name": "offense_passing_downs.ppa",
+        "name": "offense_passing_downs_ppa",
         "description": "Predicted Points Added per play on passing downs"
     },
     {
-        "name": "defense_passing_downs.ppa",
+        "name": "defense_passing_downs_ppa",
         "description": "Predicted Points Added allowed per play on passing downs"
     },
     {
-        "name": "offense_passing_downs.success_rate",
+        "name": "offense_passing_downs_success_rate",
         "description": "Success rate of offensive plays on passing downs"
     },
     {
-        "name": "defense_passing_downs.success_rate",
+        "name": "defense_passing_downs_success_rate",
         "description": "Success rate allowed on plays during passing downs"
     },
     {
-        "name": "offense_passing_plays.explosiveness",
+        "name": "offense_passing_plays_explosiveness",
         "description": "Explosiveness of all offensive passing plays"
     },
     {
-        "name": "defense_passing_plays.explosiveness",
+        "name": "defense_passing_plays_explosiveness",
         "description": "Explosiveness allowed on all passing plays"
     },
     {
-        "name": "offense_passing_plays.ppa",
+        "name": "offense_passing_plays_ppa",
         "description": "Predicted Points Added per passing play"
     },
     {
-        "name": "defense_passing_plays.ppa",
+        "name": "defense_passing_plays_ppa",
         "description": "Predicted Points Added allowed per passing play"
     },
     {
-        "name": "offense_passing_plays.success_rate",
+        "name": "offense_passing_plays_success_rate",
         "description": "Success rate of all offensive passing plays"
     },
     {
-        "name": "defense_passing_plays.success_rate",
+        "name": "defense_passing_plays_success_rate",
         "description": "Success rate allowed on all passing plays"
     },
     {
-        "name": "offense_passing_plays.total_ppa",
+        "name": "offense_passing_plays_total_ppa",
         "description": "Total Predicted Points Added for all offensive passing plays"
     },
     {
-        "name": "defense_passing_plays.total_ppa",
+        "name": "defense_passing_plays_total_ppa",
         "description": "Total Predicted Points Added allowed for all passing plays"
     },
     {
-        "name": "offense_rushing_plays.explosiveness",
+        "name": "offense_rushing_plays_explosiveness",
         "description": "Explosiveness of offensive rushing plays"
     },
     {
-        "name": "defense_rushing_plays.explosiveness",
+        "name": "defense_rushing_plays_explosiveness",
         "description": "Explosiveness allowed on rushing plays"
     },
     {
-        "name": "offense_rushing_plays.ppa",
+        "name": "offense_rushing_plays_ppa",
         "description": "Predicted Points Added per rushing play"
     },
     {
-        "name": "defense_rushing_plays.ppa",
+        "name": "defense_rushing_plays_ppa",
         "description": "Predicted Points Added allowed per rushing play"
     },
     {
-        "name": "offense_rushing_plays.success_rate",
+        "name": "offense_rushing_plays_success_rate",
         "description": "Success rate of offensive rushing plays"
     },
     {
-        "name": "defense_rushing_plays.success_rate",
+        "name": "defense_rushing_plays_success_rate",
         "description": "Success rate allowed on rushing plays"
     },
     {
-        "name": "offense_rushing_plays.total_ppa",
+        "name": "offense_rushing_plays_total_ppa",
         "description": "Total Predicted Points Added for all offensive rushing plays"
     },
     {
-        "name": "defense_rushing_plays.total_ppa",
+        "name": "defense_rushing_plays_total_ppa",
         "description": "Total Predicted Points Added allowed for all rushing plays"
     },
     {
-        "name": "offense_standard_downs.explosiveness",
+        "name": "offense_standard_downs_explosiveness",
         "description": "Explosiveness of offensive plays on standard downs"
     },
     {
-        "name": "defense_standard_downs.explosiveness",
+        "name": "defense_standard_downs_explosiveness",
         "description": "Explosiveness allowed on plays during standard downs"
     },
     {
-        "name": "offense_standard_downs.ppa",
+        "name": "offense_standard_downs_ppa",
         "description": "Predicted Points Added per play on standard downs"
     },
     {
-        "name": "defense_standard_downs.ppa",
+        "name": "defense_standard_downs_ppa",
         "description": "Predicted Points Added allowed per play on standard downs"
     },
     {
-        "name": "offense_standard_downs.success_rate",
+        "name": "offense_standard_downs_success_rate",
         "description": "Success rate of offensive plays on standard downs"
     },
     {
-        "name": "defense_standard_downs.success_rate",
+        "name": "defense_standard_downs_success_rate",
         "description": "Success rate allowed on plays during standard downs"
     }
 ]

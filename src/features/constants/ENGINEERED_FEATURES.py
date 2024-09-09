@@ -8,7 +8,7 @@ ENGINEERED_FEATURES = [
         "variants": [
             {"suffix": "last_3", "function": "calculate_rolling_average", "params": {"n": 3}},
             {"suffix": "last_10", "function": "calculate_rolling_average", "params": {"n": 10}},
-            {"suffix": "weighted", "function": "calculate_weighted_average"}
+            # {"suffix": "weighted", "function": "calculate_weighted_average"}
         ]
     } for stat in RAW_FEATURES
 ] + [

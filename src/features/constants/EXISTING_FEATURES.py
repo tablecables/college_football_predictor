@@ -11,6 +11,11 @@ EXISTING_FEATURES = [
         "type": "existing"
     },
     {
+        "name": "start_date",
+        "description": "Game date and time",
+        "type": "existing"
+    },
+    {
         "name": "is_home",
         "description": "Whether the team is playing at home",
         "type": "existing"
@@ -58,11 +63,6 @@ EXISTING_FEATURES = [
     {
         "name": "win",
         "description": "Did the team win?",
-        "type": "existing"
-    },
-    {
-        "name": "start_date",
-        "description": "Game date and time",
         "type": "existing"
     }
 ]
