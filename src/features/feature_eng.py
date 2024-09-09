@@ -2,451 +2,12 @@
 
 import pandas as pd
 import numpy as np
+from .constants.PRE_GAME_STATS import PRE_GAME_STATS
+from .constants.ENGINEERED_FEATURES import ENGINEERED_FEATURES
 
-POST_GAME_STATS = [
-    # Basic Stats
-    {
-        "name": "totalYards",
-        "description": "Total yards gained by the team"
-    },
-    {
-        "name": "firstDowns",
-        "description": "Number of first downs achieved"
-    },
-    {
-        "name": "possessionTime",
-        "description": "Time of possession in seconds"
-    },
-    {
-        "name": "thirdDownPct",
-        "description": "Percentage of successful third down conversions"
-    },
-    {
-        "name": "fourthDownPct",
-        "description": "Percentage of successful fourth down conversions"
-    },
-    {
-        "name": "passingTDs",
-        "description": "Number of passing touchdowns"
-    },
-    {
-        "name": "netPassingYards",
-        "description": "Net yards gained from passing"
-    },
-    {
-        "name": "completionPct",
-        "description": "Number of pass completions per attempts"
-    },
-    {
-        "name": "yardsPerPass",
-        "description": "Average yards gained per pass attempt"
-    },
-    {
-        "name": "rushingTDs",
-        "description": "Number of rushing touchdowns"
-    },
-    {
-        "name": "rushingYards",
-        "description": "Total rushing yards"
-    },
-    {
-        "name": "rushingAttempts",
-        "description": "Number of rushing attempts"
-    },
-    {
-        "name": "yardsPerRushAttempt",
-        "description": "Average yards gained per rush attempt"
-    },
-    {
-        "name": "puntReturns",
-        "description": "Number of punt returns"
-    },
-    {
-        "name": "puntReturnYards",
-        "description": "Total yards gained from punt returns"
-    },
-    {
-        "name": "puntReturnTDs",
-        "description": "Number of touchdowns scored on punt returns"
-    },
-    {
-        "name": "kickingPoints",
-        "description": "Total points scored from kicking (field goals and extra points)"
-    },
-    {
-        "name": "penalties",
-        "description": "Total number of penalties"
-    },
-    {
-        "name": "penaltyYards",
-        "description": "Total number of yards awarded to opponent from penalties"
-    },
-    {
-        "name": "turnovers",
-        "description": "Total number of turnovers"
-    },
-    {
-        "name": "interceptions",
-        "description": "Number of interceptions thrown"
-    },
-    {
-        "name": "interceptionYards",
-        "description": "Yards gained from interception returns"
-    },
-    {
-        "name": "interceptionTDs",
-        "description": "Number of touchdowns scored on interception returns"
-    },
-    {
-        "name": "passesIntercepted",
-        "description": "Number of passes intercepted by the defense"
-    },
-    {
-        "name": "totalFumbles",
-        "description": "Total number of fumbles"
-    },
-    {
-        "name": "fumblesLost",
-        "description": "Number of fumbles lost to the opposing team"
-    },
-    {
-        "name": "fumblesRecovered",
-        "description": "Number of fumbles recovered"
-    },
+# combine all features
 
-    # Advanced Stats
-    {
-        "name": "offense_drives",
-        "description": "Total number of offensive possessions",
-    },
-    {
-        "name": "defense_drives",
-        "description": "Total number of defensive possessions" 
-    },
-    {
-        "name": "offense_explosiveness",
-        "description": "How frequently a team generates big plays, typically runs of 12+ yards or passes of 15+ yards"  
-    },
-    {
-        "name": "defense_explosiveness",
-        "description": "How frequently a team generates big plays, typically runs of 12+ yards or passes of 15+ yards" 
-    },
-    {
-        "name": "offense_line_yards",
-        "description": "Measure of offensive line performance in run blocking"
-    },
-    {
-        "name": "defense_line_yards",
-        "description": "Measure of defensive line performance against the run"
-    },
-    {
-        "name": "offense_open_field_yards",
-        "description": "Yards gained by running backs beyond the first 10 yards of a run"
-    },
-    {
-        "name": "defense_open_field_yards",
-        "description": "Yards allowed by defense beyond the first 10 yards of a run"
-    },
-    {
-        "name": "offense_power_success",
-        "description": "Success rate on runs on third or fourth down with 2 yards or less to go"
-    },
-    {
-        "name": "defense_power_success",
-        "description": "Success rate allowed on runs on third or fourth down with 2 yards or less to go"
-    },
-    {
-        "name": "offense_ppa",
-        "description": "Predicted Points Added per play for offense"
-    },
-    {
-        "name": "defense_ppa",
-        "description": "Predicted Points Added per play allowed by defense"
-    },
-    {
-        "name": "offense_second_level_yards",
-        "description": "Yards gained by running backs between 5-10 yards past the line of scrimmage"
-    },
-    {
-        "name": "defense_second_level_yards",
-        "description": "Yards allowed by defense between 5-10 yards past the line of scrimmage"
-    },
-    {
-        "name": "offense_stuff_rate",
-        "description": "Percentage of runs where the running back is tackled at or behind the line of scrimmage"
-    },
-    {
-        "name": "defense_stuff_rate",
-        "description": "Percentage of runs where the defense tackles the running back at or behind the line of scrimmage"
-    },
-    {
-        "name": "offense_success_rate",
-        "description": "Percentage of plays that are considered successful (50% of needed yards on 1st down, 70% on 2nd, 100% on 3rd/4th)"
-    },
-    {
-        "name": "defense_success_rate",
-        "description": "Percentage of plays allowed that are considered successful for the offense"
-    },
-    {
-        "name": "offense_total_ppa",
-        "description": "Total Predicted Points Added for all offensive plays"
-    },
-    {
-        "name": "defense_total_ppa",
-        "description": "Total Predicted Points Added allowed for all defensive plays"
-    },
-    {
-        "name": "offense_passing_downs.explosiveness",
-        "description": "Explosiveness of offensive plays on passing downs"
-    },
-    {
-        "name": "defense_passing_downs.explosiveness",
-        "description": "Explosiveness allowed on plays during passing downs"
-    },
-    {
-        "name": "offense_passing_downs.ppa",
-        "description": "Predicted Points Added per play on passing downs"
-    },
-    {
-        "name": "defense_passing_downs.ppa",
-        "description": "Predicted Points Added allowed per play on passing downs"
-    },
-    {
-        "name": "offense_passing_downs.success_rate",
-        "description": "Success rate of offensive plays on passing downs"
-    },
-    {
-        "name": "defense_passing_downs.success_rate",
-        "description": "Success rate allowed on plays during passing downs"
-    },
-    {
-        "name": "offense_passing_plays.explosiveness",
-        "description": "Explosiveness of all offensive passing plays"
-    },
-    {
-        "name": "defense_passing_plays.explosiveness",
-        "description": "Explosiveness allowed on all passing plays"
-    },
-    {
-        "name": "offense_passing_plays.ppa",
-        "description": "Predicted Points Added per passing play"
-    },
-    {
-        "name": "defense_passing_plays.ppa",
-        "description": "Predicted Points Added allowed per passing play"
-    },
-    {
-        "name": "offense_passing_plays.success_rate",
-        "description": "Success rate of all offensive passing plays"
-    },
-    {
-        "name": "defense_passing_plays.success_rate",
-        "description": "Success rate allowed on all passing plays"
-    },
-    {
-        "name": "offense_passing_plays.total_ppa",
-        "description": "Total Predicted Points Added for all offensive passing plays"
-    },
-    {
-        "name": "defense_passing_plays.total_ppa",
-        "description": "Total Predicted Points Added allowed for all passing plays"
-    },
-    {
-        "name": "offense_rushing_plays.explosiveness",
-        "description": "Explosiveness of offensive rushing plays"
-    },
-    {
-        "name": "defense_rushing_plays.explosiveness",
-        "description": "Explosiveness allowed on rushing plays"
-    },
-    {
-        "name": "offense_rushing_plays.ppa",
-        "description": "Predicted Points Added per rushing play"
-    },
-    {
-        "name": "defense_rushing_plays.ppa",
-        "description": "Predicted Points Added allowed per rushing play"
-    },
-    {
-        "name": "offense_rushing_plays.success_rate",
-        "description": "Success rate of offensive rushing plays"
-    },
-    {
-        "name": "defense_rushing_plays.success_rate",
-        "description": "Success rate allowed on rushing plays"
-    },
-    {
-        "name": "offense_rushing_plays.total_ppa",
-        "description": "Total Predicted Points Added for all offensive rushing plays"
-    },
-    {
-        "name": "defense_rushing_plays.total_ppa",
-        "description": "Total Predicted Points Added allowed for all rushing plays"
-    },
-    {
-        "name": "offense_standard_downs.explosiveness",
-        "description": "Explosiveness of offensive plays on standard downs"
-    },
-    {
-        "name": "defense_standard_downs.explosiveness",
-        "description": "Explosiveness allowed on plays during standard downs"
-    },
-    {
-        "name": "offense_standard_downs.ppa",
-        "description": "Predicted Points Added per play on standard downs"
-    },
-    {
-        "name": "defense_standard_downs.ppa",
-        "description": "Predicted Points Added allowed per play on standard downs"
-    },
-    {
-        "name": "offense_standard_downs.success_rate",
-        "description": "Success rate of offensive plays on standard downs"
-    },
-    {
-        "name": "defense_standard_downs.success_rate",
-        "description": "Success rate allowed on plays during standard downs"
-    }
-]
-
-ENGINEERED_FEATURES = [
-    {
-        "base_name": stat["name"],
-        "description": stat["description"],
-        "type": "engineered",
-        "variants": [
-            {"suffix": "last_3", "function": "calculate_rolling_average", "params": {"n": 3}},
-            {"suffix": "last_10", "function": "calculate_rolling_average", "params": {"n": 10}},
-            {"suffix": "weighted", "function": "calculate_weighted_average"}
-        ]
-    } for stat in POST_GAME_STATS
-] + [
-    {
-        "name": "win_rate_last_1",
-        "description": "Result of their last game",
-        "type": "engineered",
-        "function": "calculate_win_rate_last_n",
-        "params": {"n": 1}
-    },
-    {
-        "name": "win_rate_last_3",
-        "description": "Win rate of the team in their last 3 games",
-        "type": "engineered",
-        "function": "calculate_win_rate_last_n",
-        "params": {"n": 3}
-    },
-    {
-        "name": "win_rate_last_5",
-        "description": "Win rate of the team in their last 5 games",
-        "type": "engineered",
-        "function": "calculate_win_rate_last_n",
-        "params": {"n": 5}
-    },
-    {
-        "name": "win_rate_last_10",
-        "description": "Win rate of the team in their last 10 games",
-        "type": "engineered",
-        "function": "calculate_win_rate_last_n",
-        "params": {"n": 10}
-    },
-    {
-        "name": "points_scored_last_1",
-        "description": "Average points scored in the last 1 games",
-        "type": "engineered",
-        "function": "calculate_total_points_last_n",
-        "params": {"stat": "team_points", "n": 1}
-    },
-    {
-        "name": "points_allowed_last_1",
-        "description": "Average points allowed in the last 1 games",
-        "type": "engineered",
-        "function": "calculate_total_points_last_n",
-        "params": {"stat": "opponent_points", "n": 1}
-    },
-    {
-        "name": "points_scored_last_3",
-        "description": "Average points scored in the last 3 games",
-        "type": "engineered",
-        "function": "calculate_total_points_last_n",
-        "params": {"stat": "team_points", "n": 3}
-    },
-    {
-        "name": "points_allowed_last_3",
-        "description": "Average points allowed in the last 3 games",
-        "type": "engineered",
-        "function": "calculate_total_points_last_n",
-        "params": {"stat": "opponent_points", "n": 3}
-    },
-]
-
-FEATURES = [
-    # Existing features
-    {
-        "name": "season",
-        "description": "Year of the game",
-        "type": "existing"
-    },
-    {
-        "name": "week",
-        "description": "Week number of the game in the season",
-        "type": "existing"
-    },
-    {
-        "name": "is_home",
-        "description": "Whether the team is playing at home",
-        "type": "existing"
-    },
-    {
-        "name": "season_type",
-        "description": "Regular or post season",
-        "type": "existing",
-        "categorical": True
-    },
-    {
-        "name": "neutral_site",
-        "description": "Whether one of the teams is playing at home or not",
-        "type": "existing"
-    },
-    {
-        "name": "conference_game",
-        "description": "If the matchup is within the conference or not",
-        "type": "existing"
-    },
-    {
-        "name": "team_id",
-        "description": "Unique identifier for each team",
-        "type": "existing",
-        "categorical": True
-    },
-    {
-        "name": "opponent_id",
-        "description": "Unique identifier for each opponent" ,
-        "type": "existing",
-        "categorical": True
-    },
-    {
-        "name": "team_conference",
-        "description": "Team conference",
-        "type": "existing",
-        "categorical": True
-    },
-    {
-        "name": "opponent_conference",
-        "description": "Opponent's conference",
-        "type": "existing",
-        "categorical": True
-    },
-    {
-        "name": "win",
-        "description": "Did the team win?",
-        "type": "existing"
-    },
-    {
-        "name": "start_date",
-        "description": "Game date and time",
-        "type": "existing"
-    }
-] + ENGINEERED_FEATURES
+ALL_FEATURES = PRE_GAME_STATS + ENGINEERED_FEATURES
 
 def calculate_rolling_average(data, stat, n):
     # Ensure data is sorted by game date and team_id
@@ -591,5 +152,40 @@ def get_feature_names(feature_type=None):
                 engineered_names.append(feature['name'])
         return engineered_names
     elif feature_type:
-        return [f["name"] for f in FEATURES if f["type"] == feature_type]
-    return [f["name"] for f in FEATURES if f["type"] == "existing"] + get_feature_names("engineered")
+        return [f["name"] for f in ALL_FEATURES if f["type"] == feature_type]
+    return [f["name"] for f in ALL_FEATURES if f["type"] == "existing"] + get_feature_names("engineered")
+
+def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply all engineered features to the dataframe."""
+    engineered_funcs = get_engineered_feature_functions()
+    
+    # Calculate all engineered features at once
+    new_features = {}
+    for feature_name, func in engineered_funcs.items():
+        if feature_name not in df.columns:  # Only add if not already present
+            try:
+                new_feature = func(df)
+                new_features[feature_name] = new_feature
+            except KeyError as e:
+                print(f"Warning: Could not calculate {feature_name}. Missing column: {str(e)}")
+            except Exception as e:
+                print(f"Error calculating {feature_name}: {str(e)}")
+    
+    # Create a new DataFrame with engineered features and concatenate with original
+    engineered_df = pd.DataFrame(new_features, index=df.index)
+    return pd.concat([df, engineered_df], axis=1)
+
+def select_features(df: pd.DataFrame, selected_features: list = None) -> pd.DataFrame:
+    """Select specified features from the dataframe."""
+    if selected_features is None:
+        selected_features = get_feature_names()
+    
+    # Only select features that exist in the dataframe
+    existing_features = [f for f in selected_features if f in df.columns]
+    return df[existing_features]
+
+def preprocess_data(df: pd.DataFrame, selected_features: list = None) -> pd.DataFrame:
+    """Main function to preprocess data: engineer features and select them."""
+    df = engineer_features(df)  # Engineer features first
+    df = select_features(df, selected_features)  # Then select features
+    return df
