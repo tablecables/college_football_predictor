@@ -3,11 +3,22 @@
 ## Overview
 This document outlines the key decisions made during the data cleaning process for the College Football Predictor project.
 
+## Data Completeness
+-   2001+: Game Data
+    -   Attendance 2004, 2005, 2009-2011. Assuming 2020 is COVID numbers
+-   2004+: Team Game Stats
+    -   Some data 2016+
+-   2001+: Advanced Stats
+-   2015+: Team Talent
+-   2013+: Betting Lines
+    -   2013+: Pregame win probability, although also null 50% of the time...
+    -   Moneyline null < 2021
+
 ## Handling Duplicates
 
--   Issue: After pulling the larger API datset, 2001-2024, we have a bunch of duplicate rows after merging (12.8%), which appear to exist in the raw data from the API
+-   Issue: After pulling the larger API datset, 2001-2024, we have a bunch of duplicate rows after merging (12.8%), which exist in the raw data from the API (7.6% of games, 5% of team_stats, and 0.14% of team_talent)
 -   Decision: Drop duplicates from raw dataframes before merging
--   Rationale: The ultimate fix might be in how we're using the API, but testing takes a long time, so we'll fix upstream for now
+-   Rationale: This persisted even with a refactor of using the API. Confident issue is on the public dataset.
 
 ## Handling Missing Values
 

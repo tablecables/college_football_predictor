@@ -2,12 +2,12 @@
 
 import pandas as pd
 import numpy as np
-from .constants.PRE_GAME_STATS import PRE_GAME_STATS
+from .constants.EXISTING_FEATURES import EXISTING_FEATURES
 from .constants.ENGINEERED_FEATURES import ENGINEERED_FEATURES
 
 # combine all features
 
-ALL_FEATURES = PRE_GAME_STATS + ENGINEERED_FEATURES
+ALL_FEATURES = EXISTING_FEATURES + ENGINEERED_FEATURES
 
 def calculate_rolling_average(data, stat, n):
     # Ensure data is sorted by game date and team_id

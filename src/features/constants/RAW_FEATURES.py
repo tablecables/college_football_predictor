@@ -1,4 +1,4 @@
-POST_GAME_STATS = [
+RAW_FEATURES = [
     # Basic Stats
     {
         "name": "totalYards",

@@ -1,7 +1,7 @@
-PRE_GAME_STATS = [
+EXISTING_FEATURES = [
     # Existing features
     {
-        "name": "season",
+        "name": "year",
         "description": "Year of the game",
         "type": "existing"
     },
