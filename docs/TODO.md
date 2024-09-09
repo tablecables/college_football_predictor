@@ -5,6 +5,11 @@
 -   [ ] **Update feature engineering with db setup**
     -   [x] Loosing track of this, let's start from the top
     -   [ ] Fix and add back weighted function
+    -   [ ] Review rolling averages
+-   [ ] First prediction insights -> texas vs michigan!
+    -   [ ] Get returning production and transfer portal?
+    -   [ ] get coaches
+    -   [ ] get player season ppa
 
 -   [ ] Feature selection
     -   [ ] Fixing rolling averages and sums so that we fill the NaN
