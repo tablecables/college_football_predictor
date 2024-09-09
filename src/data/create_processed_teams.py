@@ -67,7 +67,7 @@ def create_processed_teams_db(source_db_path, target_db_path):
         GROUP BY year
     )
     SELECT 
-        id, year, week, season_type, start_date, neutral_site,
+        id, year, week, season_type, start_date, completed, neutral_site,
         COALESCE(conference_game, 
             CASE 
                 WHEN team_conference = opponent_conference THEN 1
@@ -88,24 +88,147 @@ def create_processed_teams_db(source_db_path, target_db_path):
         opponent_id, opponent, opponent_conference, opponent_division, opponent_points,
         CAST(home_away = 'home' AS INTEGER) AS is_home,
         CASE 
-        WHEN year > 2013 AND start_date < DATE('now') AND excitement_index IS NULL THEN 
+        WHEN year > 2013 AND completed = 1 AND excitement_index IS NULL THEN 
             (SELECT avg_excitement 
              FROM yearly_avg_excitement y 
              WHERE y.year = cleaned_data.year)
             ELSE excitement_index
         END AS excitement_index,
-        COALESCE(fumblesLost, 0) + COALESCE(fumblesRecovered, 0) AS totalFumbles,
-        COALESCE(puntReturnYards, 0) AS puntReturnYards,
-        COALESCE(puntReturnTDs, 0) AS puntReturnTDs,
-        COALESCE(puntReturns, 0) AS puntReturns,
-        COALESCE(kickingPoints, 0) AS kickingPoints,
-        COALESCE(interceptionYards, 0) AS interceptionYards,
-        COALESCE(interceptionTDs, 0) AS interceptionTDs,
-        COALESCE(passesIntercepted, 0) AS passesIntercepted,
-        COALESCE(passingTDs, 0) AS passingTDs,
-        COALESCE(rushingTDs, 0) AS rushingTDs,
-        COALESCE(penalties, 0) AS penalties,
-        COALESCE(penaltyYards, 0) AS penaltyYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(fumblesLost, 0)
+            ELSE fumblesLost
+        END AS fumblesLost,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(fumblesRecovered, 0)
+            ELSE fumblesRecovered
+        END AS fumblesRecovered,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(fumblesLost, 0) + COALESCE(fumblesRecovered, 0)
+            ELSE fumblesLost + fumblesRecovered
+        END AS totalFumbles,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(puntReturnYards, 0)
+            ELSE puntReturnYards
+        END AS puntReturnYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(puntReturnTDs, 0)
+            ELSE puntReturnTDs
+        END AS puntReturnTDs,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(puntReturns, 0)
+            ELSE puntReturns
+        END AS puntReturns,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(kickingPoints, 0)
+            ELSE kickingPoints
+        END AS kickingPoints,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(interceptionYards, 0)
+            ELSE interceptionYards
+        END AS interceptionYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(interceptionTDs, 0)
+            ELSE interceptionTDs
+        END AS interceptionTDs,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(passesIntercepted, 0)
+            ELSE passesIntercepted
+        END AS passesIntercepted,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(passingTDs, 0)
+            ELSE passingTDs
+        END AS passingTDs,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(rushingTDs, 0)
+            ELSE rushingTDs
+        END AS rushingTDs,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(penalties, 0)
+            ELSE penalties
+        END AS penalties,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(penaltyYards, 0)
+            ELSE penaltyYards
+        END AS penaltyYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(firstDowns, 0)
+            ELSE firstDowns
+        END AS firstDowns,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(totalYards, 0)
+            ELSE totalYards
+        END AS totalYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(netPassingYards, 0)
+            ELSE netPassingYards
+        END AS netPassingYards,
+        CASE
+            WHEN year >= 2004 AND completed = 1
+            THEN COALESCE(yardsPerPass, 0)
+            ELSE yardsPerPass
+        END AS yardsPerPass,
+        CASE
+            WHEN year >= 2009 AND completed = 1
+            THEN COALESCE(kickReturnYards, 0)
+            ELSE kickReturnYards
+        END AS kickReturnYards,
+        CASE
+            WHEN year >= 2009 AND completed = 1
+            THEN COALESCE(kickReturnTDs, 0)
+            ELSE kickReturnTDs
+        END AS kickReturnTDs,
+        CASE
+            WHEN year >= 2009 AND completed = 1
+            THEN COALESCE(kickReturns, 0)
+            ELSE kickReturns
+        END AS kickReturns,
+        CASE
+            WHEN year >= 2016 AND completed = 1
+            THEN COALESCE(tacklesForLoss, 0)
+            ELSE tacklesForLoss
+        END AS tacklesForLoss,
+        CASE
+            WHEN year >= 2016 AND completed = 1
+            THEN COALESCE(tackles, 0)
+            ELSE tackles
+        END AS tackles,
+        CASE
+            WHEN year >= 2016 AND completed = 1
+            THEN COALESCE(defensiveTDs, 0)
+            ELSE defensiveTDs
+        END AS defensiveTDs,
+        CASE
+            WHEN year >= 2016 AND completed = 1
+            THEN COALESCE(sacks, 0)
+            ELSE sacks
+        END AS sacks,
+        CASE
+            WHEN year >= 2016 AND completed = 1
+            THEN COALESCE(qbHurries, 0)
+            ELSE qbHurries
+        END AS qbHurries,
+        CASE
+            WHEN year >= 2016 AND completed = 1
+            THEN COALESCE(passesDeflected, 0)
+            ELSE passesDeflected
+        END AS passesDeflected,
         COALESCE(possession_time_minutes, 
             (SELECT AVG(possession_time_minutes) FROM cleaned_data c2 
              WHERE c2.year = cleaned_data.year AND c2.team = cleaned_data.team),
@@ -120,6 +243,426 @@ def create_processed_teams_db(source_db_path, target_db_path):
         COALESCE(completionPct, 
             (SELECT AVG(completionPct) FROM cleaned_data c2 
              WHERE c2.year = cleaned_data.year)) AS completionPct,
+        json_extract(team_line_scores, '$[0]') AS team_score_first,
+        json_extract(team_line_scores, '$[1]') AS team_score_second,
+        json_extract(team_line_scores, '$[2]') AS team_score_third,
+        json_extract(team_line_scores, '$[3]') AS team_score_fourth,
+        json_extract(opponent_line_scores, '$[0]') AS opponent_score_first,
+        json_extract(opponent_line_scores, '$[1]') AS opponent_score_second,
+        json_extract(opponent_line_scores, '$[2]') AS opponent_score_third,
+        json_extract(opponent_line_scores, '$[3]') AS opponent_score_fourth,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_plays,
+                (SELECT AVG(offense_plays) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_plays) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_plays)
+            ELSE offense_plays
+        END AS offense_plays,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_drives,
+                (SELECT AVG(offense_drives) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_drives) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_drives)
+            ELSE offense_drives
+        END AS offense_drives,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_ppa,
+                (SELECT AVG(offense_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_ppa)
+            ELSE offense_ppa
+        END AS offense_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_total_ppa,
+                (SELECT AVG(offense_total_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_total_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_total_ppa)
+            ELSE offense_total_ppa
+        END AS offense_total_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_success_rate,
+                (SELECT AVG(offense_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_success_rate)
+            ELSE offense_success_rate
+        END AS offense_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_explosiveness,
+                (SELECT AVG(offense_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_explosiveness)
+            ELSE offense_explosiveness
+        END AS offense_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_power_success,
+                (SELECT AVG(offense_power_success) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_power_success) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_power_success)
+            ELSE offense_power_success
+        END AS offense_power_success,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_stuff_rate,
+                (SELECT AVG(offense_stuff_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_stuff_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_stuff_rate)
+            ELSE offense_stuff_rate
+        END AS offense_stuff_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_line_yards,
+                (SELECT AVG(offense_line_yards) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_line_yards) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_line_yards)
+            ELSE offense_line_yards
+        END AS offense_line_yards,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_line_yards_total,
+                (SELECT AVG(offense_line_yards_total) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_line_yards_total) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_line_yards_total)
+            ELSE offense_line_yards_total
+        END AS offense_line_yards_total,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_second_level_yards,
+                (SELECT AVG(offense_second_level_yards) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_second_level_yards) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_second_level_yards)
+            ELSE offense_second_level_yards
+        END AS offense_second_level_yards,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_second_level_yards_total,
+                (SELECT AVG(offense_second_level_yards_total) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_second_level_yards_total) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_second_level_yards_total)
+            ELSE offense_second_level_yards_total
+        END AS offense_second_level_yards_total,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_open_field_yards,
+                (SELECT AVG(offense_open_field_yards) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_open_field_yards) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_open_field_yards)
+            ELSE offense_open_field_yards
+        END AS offense_open_field_yards,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_open_field_yards_total,
+                (SELECT AVG(offense_open_field_yards_total) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_open_field_yards_total) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_open_field_yards_total)
+            ELSE offense_open_field_yards_total
+        END AS offense_open_field_yards_total,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_standard_downs_ppa,
+                (SELECT AVG(offense_standard_downs_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_standard_downs_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_standard_downs_ppa)
+            ELSE offense_standard_downs_ppa
+        END AS offense_standard_downs_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_standard_downs_success_rate,
+                (SELECT AVG(offense_standard_downs_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_standard_downs_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_standard_downs_success_rate)
+            ELSE offense_standard_downs_success_rate
+        END AS offense_standard_downs_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_standard_downs_explosiveness,
+                (SELECT AVG(offense_standard_downs_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_standard_downs_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_standard_downs_explosiveness)
+            ELSE offense_standard_downs_explosiveness
+        END AS offense_standard_downs_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_downs_ppa,
+                (SELECT AVG(offense_passing_downs_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_downs_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_downs_ppa)
+            ELSE offense_passing_downs_ppa
+        END AS offense_passing_downs_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_downs_success_rate,
+                (SELECT AVG(offense_passing_downs_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_downs_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_downs_success_rate)
+            ELSE offense_passing_downs_success_rate
+        END AS offense_passing_downs_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_downs_explosiveness,
+                (SELECT AVG(offense_passing_downs_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_downs_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_downs_explosiveness)
+            ELSE offense_passing_downs_explosiveness
+        END AS offense_passing_downs_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_rushing_plays_ppa,
+                (SELECT AVG(offense_rushing_plays_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_rushing_plays_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_rushing_plays_ppa)
+            ELSE offense_rushing_plays_ppa
+        END AS offense_rushing_plays_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_rushing_plays_total_ppa,
+                (SELECT AVG(offense_rushing_plays_total_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_rushing_plays_total_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_rushing_plays_total_ppa)
+            ELSE offense_rushing_plays_total_ppa
+        END AS offense_rushing_plays_total_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_rushing_plays_success_rate,
+                (SELECT AVG(offense_rushing_plays_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_rushing_plays_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_rushing_plays_success_rate)
+            ELSE offense_rushing_plays_success_rate
+        END AS offense_rushing_plays_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_rushing_plays_explosiveness,
+                (SELECT AVG(offense_rushing_plays_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_rushing_plays_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_rushing_plays_explosiveness)
+            ELSE offense_rushing_plays_explosiveness
+        END AS offense_rushing_plays_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_plays_ppa,
+                (SELECT AVG(offense_passing_plays_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_plays_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_plays_ppa)
+            ELSE offense_passing_plays_ppa
+        END AS offense_passing_plays_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_plays_total_ppa,
+                (SELECT AVG(offense_passing_plays_total_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_plays_total_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_plays_total_ppa)
+            ELSE offense_passing_plays_total_ppa
+        END AS offense_passing_plays_total_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_plays_success_rate,
+                (SELECT AVG(offense_passing_plays_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_plays_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_plays_success_rate)
+            ELSE offense_passing_plays_success_rate
+        END AS offense_passing_plays_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(offense_passing_plays_explosiveness,
+                (SELECT AVG(offense_passing_plays_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(offense_passing_plays_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                offense_passing_plays_explosiveness)
+            ELSE offense_passing_plays_explosiveness
+        END AS offense_passing_plays_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_plays,
+                (SELECT AVG(defense_plays) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_plays) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_plays)
+            ELSE defense_plays
+        END AS defense_plays,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_drives,
+                (SELECT AVG(defense_drives) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_drives) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_drives)
+            ELSE defense_drives
+        END AS defense_drives,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_ppa,
+                (SELECT AVG(defense_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_ppa)
+            ELSE defense_ppa
+        END AS defense_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_total_ppa,
+                (SELECT AVG(defense_total_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_total_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_total_ppa)
+            ELSE defense_total_ppa
+        END AS defense_total_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_success_rate,
+                (SELECT AVG(defense_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_success_rate)
+            ELSE defense_success_rate
+        END AS defense_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_explosiveness,
+                (SELECT AVG(defense_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_explosiveness)
+            ELSE defense_explosiveness
+        END AS defense_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_power_success,
+                (SELECT AVG(defense_power_success) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_power_success) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_power_success)
+            ELSE defense_power_success
+        END AS defense_power_success,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_stuff_rate,
+                (SELECT AVG(defense_stuff_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_stuff_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_stuff_rate)
+            ELSE defense_stuff_rate
+        END AS defense_stuff_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_line_yards,
+                (SELECT AVG(defense_line_yards) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_line_yards) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_line_yards)
+            ELSE defense_line_yards
+        END AS defense_line_yards,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_line_yards_total,
+                (SELECT AVG(defense_line_yards_total) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_line_yards_total) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_line_yards_total)
+            ELSE defense_line_yards_total
+        END AS defense_line_yards_total,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_second_level_yards,
+                (SELECT AVG(defense_second_level_yards) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_second_level_yards) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_second_level_yards)
+            ELSE defense_second_level_yards
+        END AS defense_second_level_yards,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_second_level_yards_total,
+                (SELECT AVG(defense_second_level_yards_total) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_second_level_yards_total) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_second_level_yards_total)
+            ELSE defense_second_level_yards_total
+        END AS defense_second_level_yards_total,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_open_field_yards,
+                (SELECT AVG(defense_open_field_yards) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_open_field_yards) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_open_field_yards)
+            ELSE defense_open_field_yards
+        END AS defense_open_field_yards,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_open_field_yards_total,
+                (SELECT AVG(defense_open_field_yards_total) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_open_field_yards_total) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_open_field_yards_total)
+            ELSE defense_open_field_yards_total
+        END AS defense_open_field_yards_total,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_standard_downs_ppa,
+                (SELECT AVG(defense_standard_downs_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_standard_downs_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_standard_downs_ppa)
+            ELSE defense_standard_downs_ppa
+        END AS defense_standard_downs_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_standard_downs_success_rate,
+                (SELECT AVG(defense_standard_downs_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_standard_downs_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_standard_downs_success_rate)
+            ELSE defense_standard_downs_success_rate
+        END AS defense_standard_downs_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_standard_downs_explosiveness,
+                (SELECT AVG(defense_standard_downs_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_standard_downs_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_standard_downs_explosiveness)
+            ELSE defense_standard_downs_explosiveness
+        END AS defense_standard_downs_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_downs_ppa,
+                (SELECT AVG(defense_passing_downs_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_downs_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_downs_ppa)
+            ELSE defense_passing_downs_ppa
+        END AS defense_passing_downs_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_downs_success_rate,
+                (SELECT AVG(defense_passing_downs_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_downs_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_downs_success_rate)
+            ELSE defense_passing_downs_success_rate
+        END AS defense_passing_downs_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_downs_explosiveness,
+                (SELECT AVG(defense_passing_downs_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_downs_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_downs_explosiveness)
+            ELSE defense_passing_downs_explosiveness
+        END AS defense_passing_downs_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_rushing_plays_ppa,
+                (SELECT AVG(defense_rushing_plays_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_rushing_plays_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_rushing_plays_ppa)
+            ELSE defense_rushing_plays_ppa
+        END AS defense_rushing_plays_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_rushing_plays_total_ppa,
+                (SELECT AVG(defense_rushing_plays_total_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_rushing_plays_total_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_rushing_plays_total_ppa)
+            ELSE defense_rushing_plays_total_ppa
+        END AS defense_rushing_plays_total_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_rushing_plays_success_rate,
+                (SELECT AVG(defense_rushing_plays_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_rushing_plays_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_rushing_plays_success_rate)
+            ELSE defense_rushing_plays_success_rate
+        END AS defense_rushing_plays_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_rushing_plays_explosiveness,
+                (SELECT AVG(defense_rushing_plays_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_rushing_plays_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_rushing_plays_explosiveness)
+            ELSE defense_rushing_plays_explosiveness
+        END AS defense_rushing_plays_explosiveness,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_plays_ppa,
+                (SELECT AVG(defense_passing_plays_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_plays_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_plays_ppa)
+            ELSE defense_passing_plays_ppa
+        END AS defense_passing_plays_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_plays_total_ppa,
+                (SELECT AVG(defense_passing_plays_total_ppa) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_plays_total_ppa) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_plays_total_ppa)
+            ELSE defense_passing_plays_total_ppa
+        END AS defense_passing_plays_total_ppa,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_plays_success_rate,
+                (SELECT AVG(defense_passing_plays_success_rate) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_plays_success_rate) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_plays_success_rate)
+            ELSE defense_passing_plays_success_rate
+        END AS defense_passing_plays_success_rate,
+        CASE
+            WHEN year >= 2003 AND completed = 1 THEN COALESCE(defense_passing_plays_explosiveness,
+                (SELECT AVG(defense_passing_plays_explosiveness) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+                (SELECT AVG(defense_passing_plays_explosiveness) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year),
+                defense_passing_plays_explosiveness)
+            ELSE defense_passing_plays_explosiveness
+        END AS defense_passing_plays_explosiveness,
+        COALESCE(team_pregame_elo,
+            (SELECT AVG(team_pregame_elo) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+            (SELECT AVG(team_pregame_elo) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year)
+        ) AS team_pregame_elo,
+        COALESCE(opponent_pregame_elo,
+            (SELECT AVG(team_pregame_elo) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.opponent_id),
+            (SELECT AVG(team_pregame_elo) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year)
+        ) AS opponent_pregame_elo,
+        COALESCE(team_elo_rating,
+            (SELECT AVG(team_elo_rating) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.team_id),
+            (SELECT AVG(team_elo_rating) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year)
+        ) AS team_elo_rating,
+        COALESCE(opponent_elo_rating,
+            (SELECT AVG(team_elo_rating) FROM cleaned_data c2 WHERE c2.year = cleaned_data.year AND c2.team_id = cleaned_data.opponent_id),
+            (SELECT AVG(team_elo_rating) FROM cleaned_data c3 WHERE c3.year = cleaned_data.year)
+        ) AS opponent_elo_rating,
+        team_postgame_elo, opponent_postgame_elo,
+        avg_line_spread, avg_line_spread_open, avg_line_over_under, avg_line_over_under_open,
+        avg_line_team_moneyline, avg_line_opponent_moneyline,
+        team_recruiting_rank, team_recruiting_points, opponent_recruiting_rank, opponent_recruiting_points,
         CASE 
             WHEN year < 2015 THEN NULL
             ELSE COALESCE(
