@@ -24,11 +24,13 @@ if dashboard == "Weekly Win Probabilities":
 
 @st.cache_data
 def load_predictions():
-    return pd.read_parquet('../models/win_probability/predictions_2024_3.parquet')
+    file_path = os.path.join(os.path.dirname(__file__), 'predictions_2024_3.parquet')
+    return pd.read_parquet(file_path)
 
 @st.cache_data
 def load_logos():
-    return pd.read_csv('../src/utils/logos/logos.csv')
+    file_path = os.path.join(os.path.dirname(__file__), 'logos.csv')
+    return pd.read_csv(file_path)
 
 predictions = load_predictions()
 logos_df = load_logos()
