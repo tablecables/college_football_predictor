@@ -14,7 +14,7 @@ def create_connection():
         print(f"Error connecting to database: {e}")
     return conn
 
-def store_raw_data(data, table_name, if_exists='append'):
+def store_raw_data(data, table_name, if_exists='append', year=None):
     conn = create_connection()
     if conn is not None:
         cursor = conn.cursor()
@@ -26,17 +26,24 @@ def store_raw_data(data, table_name, if_exists='append'):
         # Convert data to JSON strings
         json_data = [json.dumps(item) for item in data]
         
-        if not table_exists or if_exists == 'replace':
-            cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-            cursor.execute(f"CREATE TABLE {table_name} (data JSON)")
-            print(f"{'Created' if not table_exists else 'Replaced'} table {table_name}")
+        if not table_exists:
+            cursor.execute(f"CREATE TABLE {table_name} (year INTEGER, data JSON)")
+            print(f"Created table {table_name}")
         
-        # Insert data
-        cursor.executemany(f"INSERT INTO {table_name} (data) VALUES (?)", [(item,) for item in json_data])
+        if year is not None:
+            # Delete existing data for the specific year
+            cursor.execute(f"DELETE FROM {table_name} WHERE json_extract(data, '$.season') = ?", (year,))
+            # Insert new data for the year
+            cursor.executemany(f"INSERT INTO {table_name} (year, data) VALUES (?, ?)", [(year, item) for item in json_data])
+            print(f"Updated data for year {year} in {table_name}")
+        else:
+            # Append all data if no specific year is provided
+            cursor.executemany(f"INSERT INTO {table_name} (year, data) VALUES (?, ?)", 
+                               [(json.loads(item)['season'], item) for item in json_data])
+            print(f"Appended data in {table_name}")
         
         conn.commit()
         conn.close()
-        print(f"Data {'replaced' if if_exists == 'replace' else 'appended'} in {table_name}")
     else:
         print("Error! Cannot create the database connection.")
 

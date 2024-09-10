@@ -2,14 +2,23 @@
 
 ## Current Action(s)
 
+-   [x] **Fix duplication in create_transformed_teams.py**
+-   [ ] Why duplicates in create_transformed_teams? Fixed with DISTINCT for now
+-   [ ] Deploy streamlit app
 -   [ ] **Update feature engineering with db setup**
     -   [x] Loosing track of this, let's start from the top
+    -   [ ] Add in all the new features!
+    -   [ ] Encode categorical = True
+    -   [ ] Team and opponent talent null, only for new XGBoost
     -   [ ] Fix and add back weighted function
     -   [ ] Review rolling averages
+    -   [ ] Cumulative season win rate
+    -   [x] win_probability doesn't match for inverse, maybe we are not jointly predicting somehow? More home than away team results?
+    -   [ ] Document feature eng process
 -   [ ] First prediction insights -> texas vs michigan!
     -   [ ] Get returning production and transfer portal?
-    -   [ ] get coaches
-    -   [ ] get player season ppa
+    -   [ ] get coaches --> Michigan coach left
+    -   [ ] get player season ppa --> start high level players
 
 -   [ ] Feature selection
     -   [ ] Fixing rolling averages and sums so that we fill the NaN
@@ -18,7 +27,12 @@
     -   [ ] cleanup categoircal and initial nans
     -   [ ] outlier and normalize
     -   [ ] matchup feature
+    -   [ ] Clean to different feature libraries based on data_cleaning notebook and data_cleaning_decisions
 -   [ ] Remove old parquet files, .py files, and unused functions
+
+-   [ ] **Fix fetch_team_game_stats to only get new data, instead of full run**
+    -   [ ] Games broken
+    -   [ ] Same with stats_api, ratings_api, teams_api, metrics_api, recruiting_api
 
 
 ## Action Items

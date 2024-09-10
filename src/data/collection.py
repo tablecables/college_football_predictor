@@ -103,14 +103,9 @@ def fetch_games(start_year, end_year, games_api):
         
         if year_games:
             games_data = [game.to_dict() for game in year_games]
-            if year == last_season:
-                # Replace data for the last season
-                store_raw_data(games_data, 'games', if_exists='replace')
-                print(f"Replaced data for year {year}")
-            else:
-                # Append data for new years
-                store_raw_data(games_data, 'games', if_exists='append')
-                print(f"Appended data for year {year}")
+            # Update or append data for this specific year
+            store_raw_data(games_data, 'games', year=year)
+            print(f"Updated/Appended data for year {year}")
 
     print("Finished fetching games data")
 
@@ -336,14 +331,9 @@ def fetch_pregame_win_probabilities(start_year, end_year, metrics_api):
             time.sleep(1)  # Add a delay to avoid hitting rate limits
         
         if year_probabilities:
-            if year == last_season:
-                # Replace data for the last season
-                store_raw_data(year_probabilities, 'pregame_win_probabilities', if_exists='replace')
-                print(f"Replaced pregame win probabilities data for year {year}")
-            else:
-                # Append data for new years
-                store_raw_data(year_probabilities, 'pregame_win_probabilities', if_exists='append')
-                print(f"Appended pregame win probabilities data for year {year}")
+            # Update or append data for this specific year
+            store_raw_data(year_probabilities, 'pregame_win_probabilities', year=year)
+            print(f"Updated/Appended pregame win probabilities data for year {year}")
 
     print("Finished fetching pregame win probabilities data")
 
@@ -401,13 +391,8 @@ def fetch_betting_lines(start_year, end_year, betting_api):
             time.sleep(1)  # Add a delay to avoid hitting rate limits
         
         if year_lines:
-            if year == last_season:
-                # Replace data for the last season
-                store_raw_data(year_lines, 'betting_lines', if_exists='replace')
-                print(f"Replaced betting lines data for year {year}")
-            else:
-                # Append data for new years
-                store_raw_data(year_lines, 'betting_lines', if_exists='append')
-                print(f"Appended betting lines data for year {year}")
+            # Update or append data for this specific year
+            store_raw_data(year_lines, 'betting_lines', year=year)
+            print(f"Updated/Appended betting lines data for year {year}")
 
     print("Finished fetching betting lines data")

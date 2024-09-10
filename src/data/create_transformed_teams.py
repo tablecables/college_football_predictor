@@ -29,6 +29,10 @@ def create_transformed_teams_db(source_db_path, target_db_path):
         SELECT DISTINCT *
         FROM team_talent
     ),
+    advanced_team_game_stats_deduped AS (
+        SELECT DISTINCT *
+        FROM advanced_team_game_stats
+    ),
     home_team_data AS (
         SELECT
             id,
@@ -131,7 +135,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
         GROUP BY id, away_team
     )
 
-    SELECT 
+    SELECT DISTINCT
         -- Combined Game Data --
         cgd.*,
         
@@ -286,7 +290,7 @@ def create_transformed_teams_db(source_db_path, target_db_path):
     FROM combined_game_data cgd
     LEFT JOIN team_game_stats_deduped tgs
         ON cgd.id = tgs.id AND cgd.team_id = tgs.school_id
-    LEFT JOIN advanced_team_game_stats adv
+    LEFT JOIN advanced_team_game_stats_deduped adv
         ON cgd.id = adv.game_id AND cgd.team = adv.team
     LEFT JOIN home_betting_lines hbl
         ON cgd.id = hbl.id AND cgd.team = hbl.team

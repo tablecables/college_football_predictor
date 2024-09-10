@@ -61,6 +61,57 @@ EXISTING_FEATURES = [
         "categorical": True
     },
     {
+        "name": "venue_id",
+        "description": "Unique identifier for each venue",
+        "type": "existing",
+        "categorical": True
+    },
+    {
+        "name": "team_pregame_elo",
+        "description": "Team's pregame elo rating",
+        "type": "existing"
+    },
+    {
+        "name": "opponent_pregame_elo",
+        "description": "Opponent's pregame elo rating",
+        "type": "existing"
+    },
+    {
+        "name": "avg_line_spread",
+        "description": "Average line spread for the team",
+        "type": "existing"
+    },
+    {
+        "name": "team_recruiting_rank",
+        "description": "Team's recruiting rank",
+        "type": "existing"
+    },
+    {
+        "name": "opponent_recruiting_rank",
+        "description": "Opponent's recruiting rank",
+        "type": "existing"
+    },
+    {
+        "name": "team_recruiting_points",
+        "description": "Team's recruiting points",
+        "type": "existing"
+    },
+    {
+        "name": "opponent_recruiting_points",
+        "description": "Opponent's recruiting points",
+        "type": "existing"
+    },
+    {
+        "name": "team_talent",
+        "description": "Team's talent",
+        "type": "existing"
+    },
+    {
+        "name": "opponent_talent",
+        "description": "Opponent's talent",
+        "type": "existing"
+    },
+    {
         "name": "win",
         "description": "Did the team win?",
         "type": "existing"
