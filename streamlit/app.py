@@ -6,11 +6,25 @@ import requests
 from io import BytesIO
 
 st.set_page_config(layout="wide")
-st.title("🏈 College Football Predictor")
+
+# Add sidebar
+st.sidebar.title("Navigation")
+dashboard = st.sidebar.radio(
+    "Select a Dashboard",
+    ["Weekly Win Probabilities"]
+)
+
+if dashboard == "Weekly Win Probabilities":
+    st.title("🏈 College Football Predictor")
+
+    st.markdown("""
+    *This app predicts the outcomes of college football games using machine learning models. 
+    Select a week and search for specific teams to see their predicted win probabilities.*
+    """)
 
 @st.cache_data
 def load_predictions():
-    return pd.read_parquet('../models/win_probability/predictions_2024_2.parquet')
+    return pd.read_parquet('../models/win_probability/predictions_2024_3.parquet')
 
 @st.cache_data
 def load_logos():
@@ -19,11 +33,18 @@ def load_logos():
 predictions = load_predictions()
 logos_df = load_logos()
 
+# Add week selection
+weeks = sorted(predictions['week'].unique())
+selected_week = st.selectbox("Select Week", weeks, index=len(weeks)-1, key="week_selector")
+
+# Filter predictions by selected week
+predictions = predictions[predictions['week'] == selected_week]
+
 def get_logo_url(team_id):
     logo_url = logos_df[logos_df['id'] == team_id]['logo'].values
     return logo_url[0] if len(logo_url) > 0 else None
 
-def create_circular_mask(image, size=(400, 400), border_width=3):
+def create_circular_mask(image, size=(500, 500), border_width=3):
     # Resize and crop the image to a square
     image = image.convert('RGBA')
     image = image.resize((size[0], size[0]), Image.LANCZOS)
