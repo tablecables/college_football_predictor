@@ -141,6 +141,10 @@ if dashboard == "Weekly Win Probabilities":
         flex-direction: column;
         align-items: center;
     }
+    .centered-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     @media (max-width: 645px) {
         .team-logo {
             width: 40vw;
@@ -169,6 +173,11 @@ if dashboard == "Weekly Win Probabilities":
         }
         .team-to-win {
             margin-bottom: 0;
+        }
+        .centered-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
     </style>
@@ -231,7 +240,7 @@ if dashboard == "Weekly Win Probabilities":
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
         st.markdown("<h6 style='text-align: center;'>If you enjoy this app, consider buying me a coffee!</h6>", unsafe_allow_html=True)
-        st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
+        st.markdown("<div class='centered-button'>", unsafe_allow_html=True)
         button(username="tablecables", floating=False, width=220)
         st.markdown("</div>", unsafe_allow_html=True)
 
