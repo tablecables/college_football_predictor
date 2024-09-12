@@ -26,6 +26,7 @@ if dashboard == "Weekly Win Probabilities":
     Select a week and search for specific teams to see their predicted win probabilities.*
     """)
 
+<<<<<<< HEAD
     @st.cache_data
     def load_predictions():
         return pd.read_parquet('../models/win_probability/predictions_2024_3.parquet')
@@ -33,6 +34,17 @@ if dashboard == "Weekly Win Probabilities":
     @st.cache_data
     def load_logos():
         return pd.read_csv('../src/utils/logos/logos.csv')
+=======
+@st.cache_data
+def load_predictions():
+    file_path = os.path.join(os.path.dirname(__file__), 'predictions_2024_3.parquet')
+    return pd.read_parquet(file_path)
+
+@st.cache_data
+def load_logos():
+    file_path = os.path.join(os.path.dirname(__file__), 'logos.csv')
+    return pd.read_csv(file_path)
+>>>>>>> origin/main
 
     predictions = load_predictions()
     logos_df = load_logos()
