@@ -28,16 +28,12 @@ if dashboard == "Weekly Win Probabilities":
 
     @st.cache_data
     def load_predictions():
-        file_path = 'predictions_2024_3.parquet'
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Could not find the predictions file at {file_path}")
+        file_path = os.path.join(os.path.dirname(__file__), 'predictions_2024_3.parquet')
         return pd.read_parquet(file_path)
 
     @st.cache_data
     def load_logos():
-        file_path = 'logos.csv'
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Could not find the logos file at {file_path}")
+        file_path = os.path.join(os.path.dirname(__file__), 'logos.csv')
         return pd.read_csv(file_path)
 
     predictions = load_predictions()
