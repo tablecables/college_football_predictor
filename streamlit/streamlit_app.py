@@ -92,9 +92,32 @@ if dashboard == "Weekly Win Probabilities":
     else:
         filtered_predictions = predictions
 
+    # Create a main container for the content
+    main_container = st.container()
+
+    # Create a fixed container for the button at the bottom
+    button_container = st.container()
+
     # Custom CSS for gradient background and retro style
     st.markdown("""
     <style>
+    #root > div:nth-child(1) > div > div > div > div > section.main.css-uf99v8.egzxvld5 {
+        padding-bottom: 100px;
+    }
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: white;
+        color: black;
+        text-align: center;
+        padding: 10px 0;
+        z-index: 999;
+    }
+    .content {
+        margin-bottom: 100px; /* Adjust this value based on your footer height */
+    }
     .gradient-bar {
         background: linear-gradient(90deg, #FFA500 0%, #FFD700 100%);
         height: 20px;
@@ -192,59 +215,62 @@ if dashboard == "Weekly Win Probabilities":
         return base64.b64encode(buffered.getvalue()).decode()
 
     # Display all games
-    for index, game_data in filtered_predictions.iterrows():
-        with st.container():
-            col1, col2, col3 = st.columns([2,3,2])
-            
-            # Home team
-            with col1:
-                st.markdown(f'<div class="team-name">{game_data["home_team"]}</div>', unsafe_allow_html=True)
-                home_logo_url = get_logo_url(game_data['home_id'])
-                if home_logo_url:
-                    response = requests.get(home_logo_url)
-                    home_logo = Image.open(BytesIO(response.content))
-                    home_logo_circular = create_circular_mask(home_logo)
-                    st.markdown(f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{image_to_base64(home_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
-            
-            # Win probability
-            with col2:
-                win_prob = game_data['win_probability']
-                winning_team = game_data['home_team'] if win_prob > 0.5 else game_data['away_team']
-                st.markdown(f"""
-                <div style='text-align: center; padding: 20px;'>
-                    <div class='probability-info'>
-                        <div class='team-to-win'>{winning_team} to win</div>
-                        <div class='win-probability'>{max(win_prob, 1-win_prob):.1%}</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+    with main_container:
+        for index, game_data in filtered_predictions.iterrows():
+            with st.container():
+                col1, col2, col3 = st.columns([2,3,2])
                 
-                # Gradient probability bar
-                st.markdown(f"""
-                <div class='gradient-bar-container'>
-                    <div class='gradient-bar' style='width: {win_prob:.0%};'></div>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            # Away team
-            with col3:
-                st.markdown(f'<div class="team-name">{game_data["away_team"]}</div>', unsafe_allow_html=True)
-                away_logo_url = get_logo_url(game_data['away_id'])
-                if away_logo_url:
-                    response = requests.get(away_logo_url)
-                    away_logo = Image.open(BytesIO(response.content))
-                    away_logo_circular = create_circular_mask(away_logo)
-                    st.markdown(f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{image_to_base64(away_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
-            
-            st.markdown("---")
+                # Home team
+                with col1:
+                    st.markdown(f'<div class="team-name">{game_data["home_team"]}</div>', unsafe_allow_html=True)
+                    home_logo_url = get_logo_url(game_data['home_id'])
+                    if home_logo_url:
+                        response = requests.get(home_logo_url)
+                        home_logo = Image.open(BytesIO(response.content))
+                        home_logo_circular = create_circular_mask(home_logo)
+                        st.markdown(f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{image_to_base64(home_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
+                
+                # Win probability
+                with col2:
+                    win_prob = game_data['win_probability']
+                    winning_team = game_data['home_team'] if win_prob > 0.5 else game_data['away_team']
+                    st.markdown(f"""
+                    <div style='text-align: center; padding: 20px;'>
+                        <div class='probability-info'>
+                            <div class='team-to-win'>{winning_team} to win</div>
+                            <div class='win-probability'>{max(win_prob, 1-win_prob):.1%}</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Gradient probability bar
+                    st.markdown(f"""
+                    <div class='gradient-bar-container'>
+                        <div class='gradient-bar' style='width: {win_prob:.0%};'></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Away team
+                with col3:
+                    st.markdown(f'<div class="team-name">{game_data["away_team"]}</div>', unsafe_allow_html=True)
+                    away_logo_url = get_logo_url(game_data['away_id'])
+                    if away_logo_url:
+                        response = requests.get(away_logo_url)
+                        away_logo = Image.open(BytesIO(response.content))
+                        away_logo_circular = create_circular_mask(away_logo)
+                        st.markdown(f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{image_to_base64(away_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
+                
+                st.markdown("---")
 
-    # Add the button at the bottom of the page, after all games
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.markdown("<h6 style='text-align: center;'>If you enjoy this app, consider buying me a coffee!</h6>", unsafe_allow_html=True)
-        st.markdown("<div class='centered-button'>", unsafe_allow_html=True)
-        button(username="tablecables", floating=False, width=220)
-        st.markdown("</div>", unsafe_allow_html=True)
+    # # Add the button in the fixed container at the bottom
+    # with button_container:
+    #     st.markdown("<hr>", unsafe_allow_html=True)
+    #     col1, col2, col3 = st.columns([1,2,1])
+    #     with col2:
+    #         st.markdown("<h6 style='text-align: center; margin-bottom: 5px;'>If you enjoy this app, consider buying me a coffee!</h6>", unsafe_allow_html=True)
+    #         st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
+    #         button(username="tablecables", floating=False, width=220)
+    #         st.markdown("</div>", unsafe_allow_html=True)
 
 elif dashboard == "Support the Project":
     st.title("Support the Project")
