@@ -28,11 +28,11 @@ if dashboard == "Weekly Win Probabilities":
 
     @st.cache_data
     def load_predictions():
-        return pd.read_parquet('./predictions_2024_3.parquet')
+        return pd.read_parquet('predictions_2024_3.parquet')
 
     @st.cache_data
     def load_logos():
-        return pd.read_csv('./logos.csv')
+        return pd.read_csv('logos.csv')
 
     predictions = load_predictions()
     logos_df = load_logos()
