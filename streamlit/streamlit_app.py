@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_extras.buy_me_a_coffee import button
 import pandas as pd
+import os
 from PIL import Image, ImageDraw, ImageFilter
 import requests
 from io import BytesIO
@@ -27,11 +28,11 @@ if dashboard == "Weekly Win Probabilities":
 
     @st.cache_data
     def load_predictions():
-        return pd.read_parquet('../models/win_probability/predictions_2024_3.parquet')
+        return pd.read_parquet('./predictions_2024_3.parquet')
 
     @st.cache_data
     def load_logos():
-        return pd.read_csv('../src/utils/logos/logos.csv')
+        return pd.read_csv('./logos.csv')
 
     predictions = load_predictions()
     logos_df = load_logos()
