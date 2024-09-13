@@ -16,7 +16,7 @@ venv/
 __pycache__/
 
 # TODO
-docs/TODO.md
+**/TODO.md
 
 # DS Store
 .DS_Store
