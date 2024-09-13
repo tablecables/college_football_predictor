@@ -157,9 +157,16 @@ if dashboard == "Weekly Win Probabilities":
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .team-logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;  /* Adjust this value as needed for desktop */
+    }
     .team-logo {
-        width: 100%;
-        max-width: 200px;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
     }
     .probability-info {
         display: flex;
@@ -170,39 +177,54 @@ if dashboard == "Weekly Win Probabilities":
         display: flex;
         justify-content: center;
         align-items: center;
-    @media (max-width: 645px) {
+    
+    @media (max-width: 768px) {
+        .team-logo-container {
+            height: 150px;  /* Adjust this value as needed for tablets */
+        }
         .team-logo {
-            width: 40vw;
+            width: 30%;
             max-width: 120px;
         }
         .team-name {
-            font-size: 20px;
-            height: 32px;
+            font-size: 16px;
+            height: 40px;
+        }
+        .win-probability {
+            font-size: 24px;
+        }
+        .team-to-win {
+            font-size: 16px;
+            height: 40px;
+        }
+        .gradient-bar-container {
+            width: 80%;
+            margin: 0 auto 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .team-logo-container {
+            height: 100px; /* adjust this value as needed for mobile */
+        }
+        .team-logo {
+            width: 25%;
+            max-width: 100px;
+        }
+        .team-name {
+            font-size: 14px;
+            height: 36px;
         }
         .win-probability {
             font-size: 20px;
         }
         .team-to-win {
-            font-size: 20px;
-            height: 32px;
+            font-size: 14px;
+            height: 36px;
         }
         .gradient-bar-container {
-            width: 40vw;
-            margin: 0 auto 20px;
-        }
-        .probability-info {
-            flex-direction: row;
-            justify-content: center;
-            align-items: baseline;
-            gap: 10px;
-        }
-        .team-to-win {
-            margin-bottom: 0;
-        }
-        .centered-button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 70%;
+            margin: 0 auto 10px;
         }
     }
     </style>
@@ -228,7 +250,7 @@ if dashboard == "Weekly Win Probabilities":
                         response = requests.get(home_logo_url)
                         home_logo = Image.open(BytesIO(response.content))
                         home_logo_circular = create_circular_mask(home_logo)
-                        st.markdown(f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{image_to_base64(home_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="team-logo-container"><img src="data:image/png;base64,{image_to_base64(home_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
                 
                 # Win probability
                 with col2:
@@ -258,7 +280,7 @@ if dashboard == "Weekly Win Probabilities":
                         response = requests.get(away_logo_url)
                         away_logo = Image.open(BytesIO(response.content))
                         away_logo_circular = create_circular_mask(away_logo)
-                        st.markdown(f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{image_to_base64(away_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="team-logo-container"><img src="data:image/png;base64,{image_to_base64(away_logo_circular)}" class="team-logo"></div>', unsafe_allow_html=True)
                 
                 st.markdown("---")
 
