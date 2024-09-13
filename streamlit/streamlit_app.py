@@ -118,16 +118,18 @@ if dashboard == "Weekly Win Probabilities":
     .content {
         margin-bottom: 100px; /* Adjust this value based on your footer height */
     }
+    .gradient-bar-container {
+        width: 80%;
+        max-width: 400px; /* Adjust this value for desktop */
+        margin: 0 auto;
+        background-color: #333333;
+        border-radius: 10px;
+        overflow: hidden;
+    }
     .gradient-bar {
         background: linear-gradient(90deg, #FFA500 0%, #FFD700 100%);
         height: 20px;
         border-radius: 10px;
-    }
-    .gradient-bar-container {
-        width: 100%;
-        background-color: #333333;
-        border-radius: 10px;
-        overflow: hidden;
     }
     .team-name {
         font-size: 18px;
@@ -198,8 +200,7 @@ if dashboard == "Weekly Win Probabilities":
             height: 40px;
         }
         .gradient-bar-container {
-            width: 80%;
-            margin: 0 auto 15px;
+            max-width: 300px; /* Adjust this value for tablets */
         }
     }
 
@@ -223,8 +224,7 @@ if dashboard == "Weekly Win Probabilities":
             height: 36px;
         }
         .gradient-bar-container {
-            width: 70%;
-            margin: 0 auto 10px;
+            max-width: 200px; /* Adjust this value for mobile */
         }
     }
     </style>
