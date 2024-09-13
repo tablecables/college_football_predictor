@@ -22,7 +22,7 @@ if dashboard == "Weekly Win Probabilities":
     st.title("🏈 College Football Predictor")
 
     st.markdown("""
-    *This app predicts the outcomes of college football games using machine learning models. 
+    *This app attempts to predict the outcome of college football games using machine learning models. 
     Select a week and search for specific teams to see their predicted win probabilities.*
     """)
 

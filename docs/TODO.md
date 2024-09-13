@@ -3,8 +3,9 @@
 ## Current Action(s)
 
 -   [x] **Fix duplication in create_transformed_teams.py**
+-   [ ] **Add analytics to streamlit before launch**
 -   [ ] Why duplicates in create_transformed_teams? Fixed with DISTINCT for now
--   [ ] Deploy streamlit app
+-   [x] Deploy streamlit app
 -   [ ] **Update feature engineering with db setup**
     -   [x] Loosing track of this, let's start from the top
     -   [ ] Add in all the new features!
