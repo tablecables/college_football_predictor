@@ -1,7 +1,6 @@
 import streamlit as st
 from streamlit_extras.buy_me_a_coffee import button
 import pandas as pd
-import os
 from PIL import Image, ImageDraw, ImageFilter
 import requests
 from io import BytesIO
