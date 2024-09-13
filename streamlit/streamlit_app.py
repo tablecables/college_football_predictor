@@ -262,15 +262,15 @@ if dashboard == "Weekly Win Probabilities":
                 
                 st.markdown("---")
 
-    # # Add the button in the fixed container at the bottom
-    # with button_container:
-    #     st.markdown("<hr>", unsafe_allow_html=True)
-    #     col1, col2, col3 = st.columns([1,2,1])
-    #     with col2:
-    #         st.markdown("<h6 style='text-align: center; margin-bottom: 5px;'>If you enjoy this app, consider buying me a coffee!</h6>", unsafe_allow_html=True)
-    #         st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
-    #         button(username="tablecables", floating=False, width=220)
-    #         st.markdown("</div>", unsafe_allow_html=True)
+    # Add the button in the fixed container at the bottom
+    with button_container:
+        st.markdown("<hr>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            st.markdown("<h6 style='text-align: center; margin-bottom: 5px;'>If you enjoy this app, consider buying me a coffee!</h6>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
+            button(username="tablecables", floating=False, width=220)
+            st.markdown("</div>", unsafe_allow_html=True)
 
 elif dashboard == "Support the Project":
     st.title("Support the Project")
