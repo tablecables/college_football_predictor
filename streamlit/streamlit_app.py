@@ -7,14 +7,6 @@ import requests
 from io import BytesIO
 import base64
 
-# Plausible Analytics
-plausible_script = """
-<script defer data-domain="cf-predictor.streamlit.app" src="https://plausible.io/js/script.js"></script>
-"""
-
-# Inject the script using st.components.v1.html
-st.components.v1.html(plausible_script)
-
 st.set_page_config(layout="wide")
 
 # Add sidebar
