@@ -28,7 +28,8 @@ if dashboard == "Weekly Win Probabilities":
 
     @st.cache_data
     def load_predictions():
-        file_path = 'predictions_2024_4.parquet'
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'predictions_2024_4.parquet')
         return pd.read_parquet(file_path)
 
     @st.cache_data
