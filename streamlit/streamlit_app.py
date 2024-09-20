@@ -34,7 +34,8 @@ if dashboard == "Weekly Win Probabilities":
 
     @st.cache_data
     def load_logos():
-        file_path = 'logos.csv'
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'logos.csv')
         return pd.read_csv(file_path)
 
 
