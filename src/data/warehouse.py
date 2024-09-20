@@ -30,17 +30,50 @@ def store_raw_data(data, table_name, if_exists='append', year=None):
             cursor.execute(f"CREATE TABLE {table_name} (year INTEGER, data JSON)")
             print(f"Created table {table_name}")
         
+        # Determine the year field based on the table_name
+        year_field = 'season' if table_name in ['betting_lines', 'games', 'pregame_win_probabilities'] else 'year'
+        
         if year is not None:
             # Delete existing data for the specific year
-            cursor.execute(f"DELETE FROM {table_name} WHERE json_extract(data, '$.season') = ?", (year,))
+            cursor.execute(f"DELETE FROM {table_name} WHERE json_extract(data, '$.{year_field}') = ?", (year,))
             # Insert new data for the year
             cursor.executemany(f"INSERT INTO {table_name} (year, data) VALUES (?, ?)", [(year, item) for item in json_data])
             print(f"Updated data for year {year} in {table_name}")
         else:
             # Append all data if no specific year is provided
             cursor.executemany(f"INSERT INTO {table_name} (year, data) VALUES (?, ?)", 
-                               [(json.loads(item)['season'], item) for item in json_data])
+                               [(json.loads(item)[year_field], item) for item in json_data])
             print(f"Appended data in {table_name}")
+        
+        conn.commit()
+        conn.close()
+    else:
+        print("Error! Cannot create the database connection.")
+
+def store_team_game_stats(data, table_name):
+    conn = create_connection()
+    if conn is not None:
+        cursor = conn.cursor()
+        
+        # Check if the table exists
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        table_exists = cursor.fetchone() is not None
+        
+        # If the table does not exist, create it with 'id' as primary key
+        if not table_exists:
+            cursor.execute(f"CREATE TABLE {table_name} (id INTEGER PRIMARY KEY, data JSON)")
+            print(f"Created table {table_name}")
+        
+        # Prepare data for insertion
+        insert_data = []
+        for item in data:
+            id = item['id']
+            data_json = json.dumps(item)
+            insert_data.append((id, data_json))
+        
+        # Use 'INSERT OR REPLACE INTO' to update existing records and insert new ones
+        cursor.executemany(f"INSERT OR REPLACE INTO {table_name} (id, data) VALUES (?, ?)", insert_data)
+        print(f"Inserted/Updated data in {table_name}")
         
         conn.commit()
         conn.close()
@@ -131,3 +164,67 @@ def fetch_calendar_data(year):
     else:
         print("Error! Cannot create the database connection.")
         return None
+    
+def store_advanced_team_game_stats(data, table_name):
+    conn = create_connection()
+    if conn is not None:
+        cursor = conn.cursor()
+        
+        # Check if the table exists
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        table_exists = cursor.fetchone() is not None
+        
+        # If the table does not exist, create it with a composite primary key
+        if not table_exists:
+            cursor.execute(f"""
+                CREATE TABLE {table_name} (
+                    game_id INTEGER,
+                    team TEXT,
+                    data JSON,
+                    PRIMARY KEY (game_id, team)
+                )
+            """)
+            print(f"Created table {table_name}")
+        
+        # Prepare data for insertion
+        insert_data = []
+        for item in data:
+            game_id = item['game_id']
+            team = item['team']
+            data_json = json.dumps(item)
+            insert_data.append((game_id, team, data_json))
+        
+        # Use 'INSERT OR REPLACE INTO' to update existing records and insert new ones
+        cursor.executemany(
+            f"INSERT OR REPLACE INTO {table_name} (game_id, team, data) VALUES (?, ?, ?)",
+            insert_data
+        )
+        print(f"Inserted/Updated data in {table_name}")
+        
+        conn.commit()
+        conn.close()
+    else:
+        print("Error! Cannot create the database connection.")
+
+
+def drop_table(db_file, table_name):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+
+        # SQL command to drop the table
+        drop_table_sql = f"DROP TABLE IF EXISTS {table_name}"
+
+        # Execute the DROP TABLE command
+        cursor.execute(drop_table_sql)
+        print(f"Table '{table_name}' has been dropped successfully.")
+        
+        # Commit the changes
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close the connection
+        if conn:
+            conn.close()

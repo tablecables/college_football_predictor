@@ -10,7 +10,9 @@ from .warehouse import (
     get_last_update,
     fetch_raw_data,
     store_calendar_data,
-    fetch_calendar_data
+    fetch_calendar_data,
+    store_team_game_stats,
+    store_advanced_team_game_stats
 )
 
 # Define Power 5 conferences
@@ -111,8 +113,12 @@ def fetch_games(start_year, end_year, games_api):
 
 def fetch_team_game_stats(start_year, end_year):
     api_instance = initialize_games_api()
-    last_season = get_last_update('team_game_stats')
-
+    last_season = get_last_update('games')
+    
+    # Set minimum year to 2004
+    MIN_YEAR = 2004
+    start_year = max(start_year, MIN_YEAR)
+    
     # If we have data, start from the last season
     if last_season is not None:
         start_year = last_season
@@ -120,29 +126,26 @@ def fetch_team_game_stats(start_year, end_year):
     for year in range(start_year, end_year + 1):
         year_stats = []
         for conference in POWER_5_CONFERENCES.values():
-            try:
-                team_stats = api_instance.get_team_game_stats(
-                    year=year,
-                    conference=conference,
-                    season_type='regular'
-                )
-                year_stats.extend(team_stats)
-                print(f"Successfully fetched team game stats for {year}, conference: {conference}")
-            except ApiException as e:
-                print(f"Exception when calling GamesApi->get_team_game_stats for year {year}, conference {conference}: {e}\n")
-                print(f"Response body: {e.body}\n")
+            for season_type in ['regular', 'postseason']:
+                try:
+                    team_stats = api_instance.get_team_game_stats(
+                        year=year,
+                        conference=conference,
+                        season_type=season_type
+                    )
+                    year_stats.extend(team_stats)
+                    print(f"Successfully fetched team game stats for {year}, conference: {conference}, season type: {season_type}")
+                except ApiException as e:
+                    print(f"Exception when calling GamesApi->get_team_game_stats for year {year}, conference {conference}, season type {season_type}: {e}\n")
+                    print(f"Response body: {e.body}\n")
+                
+                time.sleep(1)  # Add a delay to avoid hitting rate limits
         
         if year_stats:
             stats_data = [stat.to_dict() for stat in year_stats]
-            if year == last_season:
-                # Replace data for the last season
-                store_raw_data(stats_data, 'team_game_stats', if_exists='replace')
-                print(f"Replaced team game stats data for year {year}")
-            else:
-                # Append data for new years
-                store_raw_data(stats_data, 'team_game_stats', if_exists='append')
-                print(f"Appended team game stats data for year {year}")
-
+            store_team_game_stats(stats_data, 'team_game_stats')
+            print(f"Updated/Appended team game stats data for year {year}")
+    
     print("Finished fetching team game stats data")
 
 def get_games_df():
@@ -186,12 +189,6 @@ def process_team_game_stats(df):
     return df
 
 def fetch_advanced_team_game_stats(start_year, end_year, stats_api):
-    last_season = get_last_update('advanced_team_game_stats')
-    
-    # If we have data, start from the last season
-    if last_season is not None:
-        start_year = last_season
-    
     for year in range(start_year, end_year + 1):
         year_stats = []
         for season_type in ['regular', 'postseason']:
@@ -210,14 +207,9 @@ def fetch_advanced_team_game_stats(start_year, end_year, stats_api):
             time.sleep(1)  # Add a delay to avoid hitting rate limits
         
         if year_stats:
-            if year == last_season:
-                # Replace data for the last season
-                store_raw_data(year_stats, 'advanced_team_game_stats', if_exists='replace')
-                print(f"Replaced advanced team game stats data for year {year}")
-            else:
-                # Append data for new years
-                store_raw_data(year_stats, 'advanced_team_game_stats', if_exists='append')
-                print(f"Appended advanced team game stats data for year {year}")
+            # Use the new function here
+            store_advanced_team_game_stats(year_stats, 'advanced_team_game_stats')
+            print(f"Updated/Appended advanced team game stats data for year {year}")
 
     print("Finished fetching advanced team game stats data")
 
