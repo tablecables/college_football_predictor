@@ -11,14 +11,10 @@ This project aims to predict outcomes of college football games using machine le
 
 - Data scraping from the [CollegeFootballData.com API](https://collegefootballdata.com/)
 - Data cleaning and processing
-
-## Planned
-
 - Exploratory data analysis
 - Feature engineering
 - Machine learning model development
 - Model evaluation and comparison with betting lines
-- (Planned) Interactive dashboard for predictions
 
 ## Documentation
 
