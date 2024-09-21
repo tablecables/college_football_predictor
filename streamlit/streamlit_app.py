@@ -53,34 +53,47 @@ if dashboard == "Weekly Win Probabilities":
         logo_url = logos_df[logos_df['id'] == team_id]['logo'].values
         return logo_url[0] if len(logo_url) > 0 else None
 
-    def create_circular_mask(image, size=(500, 500), border_width=3):
-        # Resize and crop the image to a square
+    def create_circular_mask(image, size=(500, 500), border_width=3, zoom_factor=0.75):
+        # Convert the image to RGBA
         image = image.convert('RGBA')
-        image = image.resize((size[0], size[0]), Image.LANCZOS)
         
-        # Create a white circle image for the border
-        border = Image.new('RGBA', (size[0]+border_width*2, size[1]+border_width*2), (255, 255, 255, 0))
-        draw = ImageDraw.Draw(border)
-        draw.ellipse([0, 0, size[0]+border_width*2, size[1]+border_width*2], fill=(255, 255, 255, 255))
+        # Calculate the new size based on the zoom factor
+        new_size = (int(size[0] * zoom_factor), int(size[1] * zoom_factor))
         
-        # Create the mask
+        # Resize the image
+        image = image.resize(new_size, Image.LANCZOS)
+        
+        # Create a new image with a transparent background to hold the resized image
+        background = Image.new('RGBA', size, (0, 0, 0, 0))
+        
+        # Calculate the position to center the image
+        position = ((size[0] - new_size[0]) // 2, (size[1] - new_size[1]) // 2)
+        
+        # Paste the resized image onto the background
+        background.paste(image, position)
+        
+        # Create the circular mask
         mask = Image.new('L', size, 0)
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0) + size, fill=255)
         
-        # Apply the mask to the image
+        # Apply the mask to the background image
         output = Image.new('RGBA', size, (0, 0, 0, 0))
-        output.paste(image, (0, 0), mask)
+        output.paste(background, (0, 0), mask)
         
         # Apply a slight blur to smooth edges
         output = output.filter(ImageFilter.GaussianBlur(radius=0.5))
         
+        # Create the border
+        bordered_output = Image.new('RGBA', (size[0] + border_width * 2, size[1] + border_width * 2), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(bordered_output)
+        draw.ellipse([0, 0, size[0] + border_width * 2, size[1] + border_width * 2], fill=(255, 255, 255, 255))
+        
         # Paste the output onto the border
-        bordered_output = Image.new('RGBA', (size[0]+border_width*2, size[1]+border_width*2), (0, 0, 0, 0))
-        bordered_output.paste(border, (0, 0))
         bordered_output.paste(output, (border_width, border_width), output)
         
         return bordered_output
+
 
     # Improved search functionality
     search_query = st.text_input("Search for teams:")
