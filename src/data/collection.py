@@ -73,8 +73,8 @@ def initialize_betting_api():
     configuration = configure_api(api_key)
     return cfbd.BettingApi(cfbd.ApiClient(configuration))
 
-def fetch_games(start_year, end_year, games_api):
-    last_season = get_last_update('games')
+def fetch_games(start_year, end_year, games_api, use_last_season=True):
+    last_season = get_last_update('games') if use_last_season else None
     
     # If we have data, start from the last season
     if last_season is not None:
@@ -111,9 +111,9 @@ def fetch_games(start_year, end_year, games_api):
 
     print("Finished fetching games data")
 
-def fetch_team_game_stats(start_year, end_year):
+def fetch_team_game_stats(start_year, end_year, use_last_season=True):
     api_instance = initialize_games_api()
-    last_season = get_last_update('games')
+    last_season = get_last_update('games') if use_last_season else None
     
     # Set minimum year to 2004
     MIN_YEAR = 2004
@@ -188,7 +188,17 @@ def process_team_game_stats(df):
 
     return df
 
-def fetch_advanced_team_game_stats(start_year, end_year, stats_api):
+def fetch_advanced_team_game_stats(start_year, end_year, stats_api, use_last_season=True):
+    last_season = get_last_update('games') if use_last_season else None
+    
+    # Set minimum year to 2004
+    MIN_YEAR = 2004
+    start_year = max(start_year, MIN_YEAR)
+    
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = last_season
+    
     for year in range(start_year, end_year + 1):
         year_stats = []
         for season_type in ['regular', 'postseason']:
@@ -203,18 +213,18 @@ def fetch_advanced_team_game_stats(start_year, end_year, stats_api):
             except ApiException as e:
                 print(f"Exception when calling StatsApi->get_advanced_team_game_stats for year {year} {season_type} season: {e}\n")
                 print(f"Response body: {e.body}\n")
-            
+                
             time.sleep(1)  # Add a delay to avoid hitting rate limits
         
         if year_stats:
-            # Use the new function here
             store_advanced_team_game_stats(year_stats, 'advanced_team_game_stats')
             print(f"Updated/Appended advanced team game stats data for year {year}")
-
+    
     print("Finished fetching advanced team game stats data")
 
-def fetch_team_talent(start_year, end_year, api_instance):
-    last_season = get_last_update('team_talent')
+
+def fetch_team_talent(start_year, end_year, api_instance, use_last_season=True):
+    last_season = get_last_update('games') if use_last_season else None
     
     # Ensure start_year is at least 2015
     start_year = max(2015, start_year)
@@ -228,13 +238,17 @@ def fetch_team_talent(start_year, end_year, api_instance):
             talent = api_instance.get_talent(year=year)
             talent_data = [item.to_dict() for item in talent]
             
-            if year == last_season:
+            # Include 'year' in each data item
+            for item in talent_data:
+                item['year'] = year
+            
+            if last_season is not None and year == last_season:
                 # Replace data for the last season
-                store_raw_data(talent_data, 'team_talent', if_exists='replace')
+                store_raw_data(talent_data, 'team_talent', if_exists='replace', year=year)
                 print(f"Replaced team talent data for year {year}")
             else:
                 # Append data for new years
-                store_raw_data(talent_data, 'team_talent', if_exists='append')
+                store_raw_data(talent_data, 'team_talent', if_exists='append', year=year)
                 print(f"Appended team talent data for year {year}")
             
             print(f"Successfully fetched team talent data for {year}")
@@ -242,6 +256,8 @@ def fetch_team_talent(start_year, end_year, api_instance):
             print(f"Exception when calling TeamsApi->get_talent for year {year}: {e}\n")
     
     print("Finished fetching team talent data")
+
+
 
 def fetch_calendar(year, games_api):
     try:
@@ -270,8 +286,8 @@ def get_calendar(start_year, end_year, games_api):
     return all_calendar_data
 
 def fetch_ratings(start_year, end_year, ratings_api, rating_type):
-    all_data = []
     for year in range(start_year, end_year + 1):
+        all_data = []
         try:
             if rating_type == 'elo':
                 ratings = ratings_api.get_elo_ratings(year=year)
@@ -289,19 +305,33 @@ def fetch_ratings(start_year, end_year, ratings_api, rating_type):
             print(f"Successfully fetched {rating_type.upper()} ratings for {year}")
         except ApiException as e:
             print(f"Exception when calling RatingsApi->get_{rating_type}_ratings for year {year}: {e}\n")
+        
         time.sleep(1)  # Add a delay to avoid hitting rate limits
-    
-    if all_data:
-        store_raw_data(all_data, f'{rating_type}_ratings', if_exists='replace')
-        print(f"Successfully stored all {rating_type.upper()} ratings data")
+        
+        if all_data:
+            # Delete existing data for the specific year and rating type
+            store_raw_data(all_data, f'{rating_type}_ratings', if_exists='replace', year=year)
+            print(f"Successfully stored {rating_type.upper()} ratings data for year {year}")
 
-def fetch_all_ratings(start_year, end_year, ratings_api):
+
+def fetch_all_ratings(start_year, end_year, ratings_api, use_last_season=True):
+    last_season = get_last_update('games') if use_last_season else None
+    
+    # Set minimum year to 2004
+    MIN_YEAR = 2004
+    start_year = max(start_year, MIN_YEAR)
+    
+    # If we have data, start from the last season
+    if last_season is not None:
+        start_year = last_season
+    
     for rating_type in ['elo', 'fpi', 'sp', 'srs']:
         fetch_ratings(start_year, end_year, ratings_api, rating_type)
     print("Finished fetching all ratings data")
 
-def fetch_pregame_win_probabilities(start_year, end_year, metrics_api):
-    last_season = get_last_update('pregame_win_probabilities')
+
+def fetch_pregame_win_probabilities(start_year, end_year, metrics_api, use_last_season=True):
+    last_season = get_last_update('pregame_win_probabilities') if use_last_season else None
     
     # If we have data, start from the last season
     if last_season is not None:
@@ -329,8 +359,8 @@ def fetch_pregame_win_probabilities(start_year, end_year, metrics_api):
 
     print("Finished fetching pregame win probabilities data")
 
-def fetch_team_recruiting(start_year, end_year, recruiting_api):
-    last_year = get_last_update('team_recruiting')
+def fetch_team_recruiting(start_year, end_year, recruiting_api, use_last_season=True):
+    last_year = get_last_update('games') if use_last_season else None
     
     # If we have data, start from the last year
     if last_year is not None:
@@ -358,8 +388,8 @@ def fetch_team_recruiting(start_year, end_year, recruiting_api):
     
     print("Finished fetching team recruiting data")
 
-def fetch_betting_lines(start_year, end_year, betting_api):
-    last_season = get_last_update('betting_lines')
+def fetch_betting_lines(start_year, end_year, betting_api, use_last_season=True):
+    last_season = get_last_update('betting_lines') if use_last_season else None
     
     # If we have data, start from the last season
     if last_season is not None:

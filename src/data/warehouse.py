@@ -50,6 +50,7 @@ def store_raw_data(data, table_name, if_exists='append', year=None):
     else:
         print("Error! Cannot create the database connection.")
 
+
 def store_team_game_stats(data, table_name):
     conn = create_connection()
     if conn is not None:
